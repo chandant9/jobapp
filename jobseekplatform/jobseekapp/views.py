@@ -7,6 +7,8 @@ from jobseekplatform.jobseekapp.models import Job
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
+# for login required decorator
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -37,6 +39,7 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
 
+
 # 3) User login
 def login_view(request):
     if request.method == 'POST':
@@ -48,3 +51,23 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
+
+
+@login_required
+def profile(request):
+    return render(request, 'profile.html')
+
+
+@login_required
+def update_profile(request):
+    return render(request, 'update_profile.html')
+
+
+@login_required
+def change_password(request):
+    return render(request, 'change_password.html')
+
+
+@login_required
+def logout(request):
+    return render(request, 'logout.html')
