@@ -2,15 +2,15 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from jobseekplatform.jobseekapp.models import Job
+from .models import Job
 # For User Registration and User login 2)3)
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
-from django.contrib.auth import login
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 # for login required decorator
 from django.contrib.auth.decorators import login_required
 # for profile view
-from .forms import ProfileForm
+from .forms import ProfileForm, LoginForm, RegistrationForm
 
 
 # Create your views here.
@@ -31,29 +31,38 @@ def job_list(request):
 
 
 # 2) User registration
-def register(request):
+def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
+            form.save()
+            return redirect('login')
     else:
-        form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+        form = RegistrationForm()
+    return render(request, 'register.html', {'form': form})
 
 
 # 3) User login
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = LoginForm(request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('home')
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                form.add_error(None, 'Invalid username or password')
     else:
-        form = AuthenticationForm()
-    return render(request, 'registration/login.html', {'form': form})
+        form = LoginForm()
+    return render(request, 'login.html', {'form': form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
 
 
 @login_required
