@@ -2,7 +2,7 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Job
+from .models import Job, Resume, Application
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 # for login required decorator
 from django.contrib.auth.decorators import login_required
 # for profile view
-from .forms import ProfileForm, LoginForm, RegistrationForm
+from .forms import ProfileForm, LoginForm, RegistrationForm, JobSearchForm, ResumeUploadForm, JobPostForm
 
 
 # Create your views here.
@@ -116,3 +116,39 @@ def cart_json_view(request):
     }
 
     return JsonResponse(cart_data)
+
+
+def job_search(request):
+    form = JobSearchForm(request.GET)
+    if form.is_valid():
+        keyword = form.cleaned_data['keyword']
+        location = form.cleaned_data['location']
+        jobs = Job.objects.filter(title__icontains=keyword, location__icontains=location)
+    else:
+        jobs = Job.objects.all()
+    return render(request, 'job_search.html', {'jobs': jobs, 'form': form})
+
+
+def upload_resume(request):
+    if request.method == 'POST':
+        form = ResumeUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            resume = Resume(user=request.user, file=form.cleaned_data['file'])
+            resume.save()
+            return redirect('resume_upload_success')
+    else:
+        form = ResumeUploadForm()
+    return render(request, 'upload_resume.html', {'form': form})
+
+
+def job_post(request):
+    if request.method == 'POST':
+        form = JobPostForm(request.POST)
+        if form.is_valid():
+            job = form.save(commit=False)
+            job.posted_by = request.user
+            job.save()
+            return redirect('job_post_success')
+    else:
+        form = JobPostForm()
+    return redirect(request, 'job_post.html', {'form': form})
