@@ -15,9 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from .views import job_list, register_view, login_view, logout_view, base_view, home
+from .views import job_list, register_view, login_view, logout_view, base_view, home, profile, change_password
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
-from . import views  # profile and password change
+# from . import views  # profile and password change
 
 urlpatterns = [
     path('api/jobs/', job_list, name='job_list'),  # for api endpoints
@@ -32,6 +32,6 @@ urlpatterns = [
     path('reset/<uid64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     # for profile and change password views path
-    path('profile/', views.profile, name='profile'),
-    path('change-password/', views.change_password, name='change_password'),
+    path('profile/', profile, name='profile'),
+    path('change-password/', change_password, name='change_password'),
 ]
