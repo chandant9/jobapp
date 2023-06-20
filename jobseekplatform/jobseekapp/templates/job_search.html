@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Search</title>
+</head>
+<body>
+    <h2>Job Search</h2>
+    <form method="get">
+      {{ form.as_p }}
+      <button type="submit">Search</button>
+    </form>
+    {% for job in jobs %}
+      <h3>{{ job.title }}</h3>
+      <p>{{ job.description }}</p>
+    {% endfor %}
+</body>
+</html>
