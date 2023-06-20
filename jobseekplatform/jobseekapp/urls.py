@@ -15,13 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from .views import job_list, register_view, login_view, logout_view, base_view, home, profile, change_password
+from .views import job_list, register_view, login_view, logout_view, base_view, home, profile, change_password, cart_json_view
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 
 urlpatterns = [
     path('api/jobs/', job_list, name='job_list'),  # for api endpoints
     path('base/', base_view, name='base'),  # for base
+    path('cart.json', cart_json_view, name='cart_json'),
     path('home/', home, name='home'),  # for home
     path('register/', register_view, name='register'),  # for user registration
     path('login/', login_view, name='login'),  # for user login

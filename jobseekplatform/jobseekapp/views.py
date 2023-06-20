@@ -35,8 +35,12 @@ def register_view(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
+            cleaned_data = form.cleaned_data
+            username = cleaned_data['username']
+            email = cleaned_data['email']
+            password = cleaned_data['password1']
             form.save()
-            return redirect('login')
+            return redirect('home')
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
@@ -62,7 +66,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('home')
+    return render(request, 'logout.html')
 
 
 def base_view(request):
@@ -105,6 +109,10 @@ def home(request):
     return render(request, 'home.html')
 
 
-@login_required
-def logout(request):
-    return render(request, 'logout.html')
+def cart_json_view(request):
+    cart_data = {
+        'item_count': 5,
+        'total_price': 100.0,
+    }
+
+    return JsonResponse(cart_data)
