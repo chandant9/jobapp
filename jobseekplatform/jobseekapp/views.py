@@ -152,3 +152,9 @@ def job_post(request):
     else:
         form = JobPostForm()
     return redirect(request, 'job_post.html', {'form': form})
+
+
+def apply_job(request, job_id):
+    job = Job.objects.get(pk=job_id)
+
+    return redirect('home')
