@@ -4,11 +4,14 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from jobseekplatform.jobseekapp.models import Job
 # For User Registration and User login 2)3)
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
 # for login required decorator
 from django.contrib.auth.decorators import login_required
+# for profile view
+from .forms import ProfileForm
+
 
 # Create your views here.
 
@@ -55,7 +58,15 @@ def login_view(request):
 
 @login_required
 def profile(request):
-    return render(request, 'profile.html')
+    if request.methof == 'POST':
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, 'profile.html', {'form': form})
 
 
 @login_required
@@ -65,7 +76,15 @@ def update_profile(request):
 
 @login_required
 def change_password(request):
-    return render(request, 'change_password.html')
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('change_password')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'change_password.html', {'form': form})
 
 
 @login_required
