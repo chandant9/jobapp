@@ -65,6 +65,10 @@ def logout_view(request):
     return redirect('home')
 
 
+def base_view(request):
+    return render(request, 'base.html')
+
+
 @login_required
 def profile(request):
     if request.methof == 'POST':
@@ -94,6 +98,11 @@ def change_password(request):
         form = PasswordChangeForm(request.user)
 
     return render(request, 'change_password.html', {'form': form})
+
+
+@login_required
+def home(request):
+    return render(request, 'home.html')
 
 
 @login_required
