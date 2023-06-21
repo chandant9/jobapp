@@ -11,7 +11,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 # for profile view
 from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, JobPostForm, \
-    RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm
+    RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm
+from django.contrib import messages
 
 
 # Create your views here.
@@ -58,6 +59,9 @@ def candidate_register(request):
             username = cleaned_data['username']
             email = cleaned_data['email']
             user.save()
+
+            messages.success(request, 'Registration successful. Please log in.')
+            return redirect('registration_success')
     else:
         form = CandidateRegistrationForm()
     return render(request, 'register/candidate_register.html', {'form': form})
@@ -73,9 +77,16 @@ def recruiter_register(request):
             username = cleaned_data['username']
             email = cleaned_data['email']
             user.save()
+
+            messages.success(request, 'Registration successful. Please log in.')
+            return redirect('registration_success')
     else:
         form = RecruiterRegistrationForm()
     return render(request, 'register/recruiter_register.html', {'form': form})
+
+
+def registration_success(request):
+    return render(request, 'register/registration_success.html')
 
 
 # 3) User login
@@ -102,7 +113,10 @@ def logout_view(request):
 
 
 def base_view(request):
-    return render(request, 'base.html')
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        return render(request, 'base.html')
 
 
 @login_required
@@ -187,6 +201,22 @@ def job_post(request):
 
 
 def apply_job(request, job_id):
-    job = Job.objects.get(pk=job_id)
+    job = Job.objects.get(id=job_id)
 
-    return redirect('home')
+    if request.method == 'POST':
+        form = JobApplicationForm(request.POST, request.FILES)
+        if form.is_valid():
+            job_application = form.save(commit=False)
+            job_application.job = job
+            job_application.save()
+
+            messages.success(request, 'Job application submitted successfully.')
+            return redirect('home')
+    else:
+        form = JobApplicationForm()
+
+    context = {
+        'form': form,
+        'job': job
+    }
+    return render(request, 'job/apply_job.html', context)

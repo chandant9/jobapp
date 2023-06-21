@@ -17,19 +17,20 @@ Including another URLconf
 from django.urls import path
 from .views import job_list, login_view, logout_view, base_view, home, profile, \
     change_password, cart_json_view, job_search, apply_job, role_selection_view, \
-    candidate_register, recruiter_register
+    candidate_register, recruiter_register, registration_success
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 
 urlpatterns = [
     path('api/jobs/', job_list, name='job_list'),  # for api endpoints
-    path('base/', base_view, name='base'),  # for base
+    path('', base_view, name='base_view'),  # for base
     path('cart.json', cart_json_view, name='cart_json'),
     path('home/', home, name='home'),  # for home
     path('register/candidate_register/', candidate_register, name='candidate_register'),
     path('register/recruiter_register/', recruiter_register, name='recruiter_register'),
     path('register/', role_selection_view, name='role_selection'),
     path('register/role_selection', role_selection_view, name='role_selection'),  # for user registration
+    path('register/registration_success/', registration_success, name='registration_success'),
     path('login/', login_view, name='login'),  # for user login
     path('logout/', logout_view, name='logout'),  # for logout
     # django built-in password reset functionality
@@ -41,6 +42,6 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
     path('change-password/', change_password, name='change_password'),
     path('job-search/', job_search, name='job_search'),
-    path('apply-job/<int:job_id>/', apply_job, name='apply_job'),
+    path('job/apply_job/<int:job_id>/', apply_job, name='apply_job'),
 
 ]

@@ -1,16 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Job Search</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
     <h2>Job Search</h2>
-    <ul>
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'login' %}">Login</a></li>
-        <li><a href="{% url 'role_selection' %}">Register</a></li>
-    </ul>
     <form action="{% url 'job_search' %}" method="GET">
       <input type="text" name="q" placeholder="Search jobs">
       <button type="submit">Search</button>
@@ -24,5 +15,4 @@
         {% endfor %}
     </ul>
 
-</body>
-</html>
+{% endblock %}

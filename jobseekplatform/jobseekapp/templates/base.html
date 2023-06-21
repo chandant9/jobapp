@@ -8,12 +8,12 @@
     <header>Welcome to Job Seek Platform</header>
     <nav>
         <ul>
-            <li><a href="{% url 'home' %}">Home</a> </li>
             {% if user.is_authenticated %}
+                <li><a href="{% url 'home' %}">Home</a> </li>
                 <li><a href="{% url 'job_search' %}">Job Search</a> </li>
-                <li><a href="{% url 'apply_job' %}">Apply for Job</a> </li>
                 <li><a href="{% url 'logout' %}">Logout</a> </li>
             {% else %}
+                <li><a href="{% url 'base_view' %}">Home</a> </li>
                 <li><a href="{% url 'job_search' %}">Job Search</a> </li>
                 <li><a href="{% url 'login' %}">Login</a> </li>
                 <li><a href="{% url 'role_selection' %}">Register</a> </li>
