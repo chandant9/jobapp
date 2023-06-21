@@ -2,7 +2,12 @@ from django.shortcuts import redirect
 
 
 class AuthenticationMiddleware:
-    EXCLUDED_URLS = ('/login/', '/register/', '/job-search/')
+    EXCLUDED_URLS = ('/login/',
+                     '/register/',
+                     '/job-search/',
+                     '/register/role_selection/',
+                     '/register/candidate_register/',
+                     '/register/recruiter_register/')
 
     def __init__(self, get_response):
         self.get_response = get_response

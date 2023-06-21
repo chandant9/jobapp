@@ -15,12 +15,29 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
 
-class RegistrationForm(UserCreationForm):
-    email = forms.EmailField()
+class RoleSelectionForm(forms.Form):
+    ROLE_CHOICES = [
+        ('candidate', 'Candidate'),
+        ('recruiter', 'Recruiter'),
+    ]
+    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.RadioSelect)
+
+
+class CandidateRegistrationForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
+
+
+class RecruiterRegistrationForm(UserCreationForm):
+    company_name = forms.CharField(max_length=100)
+
+    class Meta:
+        model = User
+        fields = ['username', 'company_name', 'email', 'password1', 'password2']
 
 
 class JobSearchForm(forms.Form):

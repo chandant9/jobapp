@@ -10,7 +10,8 @@ from django.shortcuts import render, redirect
 # for login required decorator
 from django.contrib.auth.decorators import login_required
 # for profile view
-from .forms import ProfileForm, LoginForm, RegistrationForm, JobSearchForm, ResumeUploadForm, JobPostForm
+from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, JobPostForm, \
+    RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm
 
 
 # Create your views here.
@@ -31,19 +32,50 @@ def job_list(request):
 
 
 # 2) User registration
-def register_view(request):
+
+def role_selection_view(request):
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
+        form = RoleSelectionForm(request.POST)
         if form.is_valid():
+            role = form.cleaned_data['role']
+            if role == 'candidate':
+                return redirect('candidate_register')
+            elif role == 'recruiter':
+                return redirect('recruiter_register')
+    else:
+        form = RoleSelectionForm()
+
+    return render(request, 'register/role_selection.html', {'form': form})
+
+
+def candidate_register(request):
+    if request.method == 'POST':
+        form = CandidateRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])
             cleaned_data = form.cleaned_data
             username = cleaned_data['username']
             email = cleaned_data['email']
-            password = cleaned_data['password1']
-            form.save()
-            return redirect('home')
+            user.save()
     else:
-        form = RegistrationForm()
-    return render(request, 'register.html', {'form': form})
+        form = CandidateRegistrationForm()
+    return render(request, 'register/candidate_register.html', {'form': form})
+
+
+def recruiter_register(request):
+    if request.method == 'POST':
+        form = RecruiterRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])
+            cleaned_data = form.cleaned_data
+            username = cleaned_data['username']
+            email = cleaned_data['email']
+            user.save()
+    else:
+        form = RecruiterRegistrationForm()
+    return render(request, 'register/recruiter_register.html', {'form': form})
 
 
 # 3) User login
