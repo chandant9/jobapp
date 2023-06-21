@@ -2,6 +2,22 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+# Used in profile model below
+
+class Profile(models.Model):
+    ROLE_CHOICES = (
+        ('recruiter', 'Recruiter'),
+        ('candidate', 'Candidate')
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=25, choices=ROLE_CHOICES, default='')
+    company_name = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+
 # Create your models here.
 
 class Company(models.Model):
@@ -36,6 +52,7 @@ class Application(models.Model):
 
     def __str__(self):
         return f"Application for {self.job.title} by {self.applicant.username}"
+
 
 
 class Resume(models.Model):

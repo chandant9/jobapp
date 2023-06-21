@@ -1,22 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Registration</h2>
+<form method="POST" action="{% url 'register' %}">
+  {% csrf_token %}
 
-  {% if role == 'candidate' %}
-    <h3>Candidate Registration</h3>
-    <form method="post">
-      {% csrf_token %}
-      {{ candidate_form.as_p }}
-      <button type="submit">Register</button>
-    </form>
-  {% elif role == 'recruiter' %}
-    <h3>Recruiter Registration</h3>
-    <form method="post">
-      {% csrf_token %}
-      {{ recruiter_form.as_p }}
-      <button type="submit">Register</button>
-    </form>
+  <label for="role">Select Role:</label>
+  <select id="role" name="role">
+    <option value="recruiter">Recruiter</option>
+    <option value="candidate">Candidate</option>
+  </select>
+
+  {% if form %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
   {% endif %}
+</form>
   <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
 {% endblock %}

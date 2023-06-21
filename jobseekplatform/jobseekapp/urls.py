@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.urls import path
 from .views import job_list, login_view, logout_view, base_view, home, profile, \
-    change_password, cart_json_view, job_search, apply_job, role_selection_view, \
-    candidate_register, recruiter_register, registration_success
+    change_password, cart_json_view, job_search, apply_job, candidate_register, recruiter_register, \
+    registration_success, role_selection_view
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 
@@ -28,7 +28,7 @@ urlpatterns = [
     path('home/', home, name='home'),  # for home
     path('register/candidate_register/', candidate_register, name='candidate_register'),
     path('register/recruiter_register/', recruiter_register, name='recruiter_register'),
-    path('register/', role_selection_view, name='role_selection'),
+    path('register/', role_selection_view, name='register'),
     path('register/role_selection', role_selection_view, name='role_selection'),  # for user registration
     path('register/registration_success/', registration_success, name='registration_success'),
     path('login/', login_view, name='login'),  # for user login
