@@ -54,7 +54,6 @@ class Application(models.Model):
         return f"Application for {self.job.title} by {self.applicant.username}"
 
 
-
 class Resume(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='resumes/')
