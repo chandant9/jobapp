@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'jobseekapp',
     'countries_plus',
+    'formtools',
 ]
 
 MIDDLEWARE = [

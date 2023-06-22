@@ -9,18 +9,20 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 # for login required decorator
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 # for profile view
 from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, JobPostForm, \
     RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm, \
     CompanyDetailsForm, JobBasicDetailsForm
 from django.contrib import messages
-from formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import NamedUrlSessionWizardView
+from django.contrib.auth.models import User
 from django.views import View
 
 # defined for JobPostingWizardView
 JOB_POSTING_FORMS = [
     ("company_details", CompanyDetailsForm),
-    ("job_basic_details", JobBasicDetailsForm),
+    ("job_basic", JobBasicDetailsForm),
     # Add more form steps here
 ]
 
@@ -83,7 +85,8 @@ def recruiter_register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.save()
-            profile = Profile(user=user, role='recruiter')
+            company_name = form.cleaned_data['company_name']
+            profile = Profile(user=user, role='recruiter', company_name=company_name)
             profile.save()
 
             messages.success(request, 'Registration successful. Please log in.')
@@ -231,25 +234,31 @@ def apply_job(request, job_id):
 
 
 # Job Posting view
-class JobPostingWizardView(SessionWizardView):
-    template_name = 'job_posting.html'
+@method_decorator(login_required, name='dispatch')
+class JobPostingWizardView(NamedUrlSessionWizardView):
+    template_name = 'company/job_posting.html'
     form_list = JOB_POSTING_FORMS
 
     def done(self, form_list, **kwargs):
+        for form in form_list:
+            form.prefix = form.prefix or form.get_prefix()
         company_details_form = form_list[0]
-        job_basic_details_form = form_list[1]
+        job_basic_form = form_list[1]
 
-        job_company_name = company_details_form.cleaned_data['job_company_name']
+        registered_company_name = self.request.user.profile.company_name
+
+        company_details_form = CompanyDetailsForm(initial={'company_name': registered_company_name})
+        job_company_name = company_details_form.cleaned_data['company_name']
         company, _ = Company.objects.get_or_create(name=job_company_name)
         employee_count = company_details_form.cleaned_data['employee_count']
         first_name = company_details_form.cleaned_data['first_name']
         last_name = company_details_form.cleaned_data['last_name']
         phone_number = company_details_form.cleaned_data['phone_number']
-        job_title = job_basic_details_form.cleaned_data['job_title']
-        job_location = job_basic_details_form.cleaned_data['job_address']
-        job_location_type = job_basic_details_form.cleaned_data['location_type']
-        country = job_basic_details_form.cleaned_data['country']
-        language = job_basic_details_form.cleaned_data['language']
+        job_title = job_basic_form.cleaned_data['job_title']
+        job_location = job_basic_form.cleaned_data['job_address']
+        job_location_type = job_basic_form.cleaned_data['location_type']
+        country = job_basic_form.cleaned_data['country']
+        language = job_basic_form.cleaned_data['language']
 
         # more form data to be retrieved later here
 
@@ -274,9 +283,9 @@ class JobPostingWizardView(SessionWizardView):
 
         job.save()
 
-        return render(self.request, 'job_posting_success.html')
+        context = {
+            'form_list': form_list,
+        }
 
+        return render(self.request, 'company/job_posting_success.html', context)
 
-# class JobPostingSuccessView(View):
-#    def get(self, request):
-#        return render(request, 'company/job_posting_success.html')

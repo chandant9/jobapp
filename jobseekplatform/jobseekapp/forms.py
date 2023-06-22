@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Job, Resume, Application
+from .models import Job, Resume, Application, Profile
 # for resume validation check
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -115,23 +115,23 @@ class JobApplicationForm(forms.ModelForm):
 # Job posting forms
 
 class CompanyDetailsForm(forms.Form):
-    company_name = forms.CharField(max_length=100, disabled=True)
+    company_name = forms.CharField(max_length=100, required=False)
     employee_count = forms.ChoiceField(choices=EMPLOYEE_COUNT_CHOICES)
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
     phone_number = forms.CharField(max_length=20)
 
-    def __init__(self, *args, **kwargs):
-        initial_company_name = kwargs.pop('company_name', '')
-        super(CompanyDetailsForm, self).__init__(*args, **kwargs)
-        self.initial['job_company_name'] = initial_company_name
-
-    # function to edit company name and keep the registered company name if not edited
-    def clean_job_company_name(self):
-        job_company_name = self.cleaned_data.get('job_company_name')
-        if job_company_name:
-            return job_company_name.strip()
-        return ''
+    # def __init__(self, *args, **kwargs):
+    #     initial_company_name = kwargs.pop('company_name', '')
+    #     super(CompanyDetailsForm, self).__init__(*args, **kwargs)
+    #     self.fields['company_name'].initial = initial_company_name
+    #
+    # # function to edit company name and keep the registered company name if not edited
+    # def clean_company_name(self):
+    #     company_name = self.cleaned_data.get('company_name')
+    #     if company_name:
+    #         return company_name.strip()
+    #     return ''
 
 
 class JobBasicDetailsForm(forms.Form):
@@ -143,8 +143,8 @@ class JobBasicDetailsForm(forms.Form):
     job_title = forms.CharField(max_length=100)
     location_type = forms.ChoiceField(choices=LOCATION_TYPE_CHOICES)
     job_address = forms.CharField(max_length=100)
-    language_requirement = forms.CharField(max_length=100)
-    language_training_provided = forms.BooleanField(required=False)
+    # language_requirement = forms.CharField(max_length=100)
+    # language_training_provided = forms.BooleanField(required=False)
 
 
 

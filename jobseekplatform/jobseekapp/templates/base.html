@@ -11,6 +11,9 @@
             {% if user.is_authenticated %}
                 <li><a href="{% url 'home' %}">Home</a> </li>
                 <li><a href="{% url 'job_search' %}">Job Search</a> </li>
+                {% if request.user.profile.role == 'recruiter' %}
+                    <li><a href="{% url 'job_posting' step='company_details' %}">Post Jobs</a></li>
+                {% endif %}
                 <li><a href="{% url 'logout' %}">Logout</a> </li>
             {% else %}
                 <li><a href="{% url 'base_view' %}">Home</a> </li>

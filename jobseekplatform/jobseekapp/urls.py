@@ -17,9 +17,10 @@ Including another URLconf
 from django.urls import path
 from .views import job_list, login_view, logout_view, base_view, home, profile, \
     change_password, cart_json_view, job_search, apply_job, candidate_register, recruiter_register, \
-    registration_success, role_selection_view, JobPostingWizardView
+    registration_success, role_selection_view, JobPostingWizardView, JOB_POSTING_FORMS
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
+
 
 urlpatterns = [
     path('api/jobs/', job_list, name='job_list'),  # for api endpoints
@@ -43,5 +44,5 @@ urlpatterns = [
     path('change-password/', change_password, name='change_password'),
     path('job-search/', job_search, name='job_search'),
     path('job/apply_job/<int:job_id>/', apply_job, name='apply_job'),
-    path('job_posting/', JobPostingWizardView.as_view(), name='job_posting'),
+    path('job_posting/<step>/', JobPostingWizardView.as_view(JOB_POSTING_FORMS, url_name='job_posting'), name='job_posting'),
 ]
