@@ -2,7 +2,7 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Job, Resume, Application, Profile
+from .models import Job, Resume, Application, Profile, Company
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
@@ -11,8 +11,18 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 # for profile view
 from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, JobPostForm, \
-    RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm
+    RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm, \
+    CompanyDetailsForm, JobBasicDetailsForm
 from django.contrib import messages
+from formtools.wizard.views import SessionWizardView
+from django.views import View
+
+# defined for JobPostingWizardView
+JOB_POSTING_FORMS = [
+    ("company_details", CompanyDetailsForm),
+    ("job_basic_details", JobBasicDetailsForm),
+    # Add more form steps here
+]
 
 
 # Create your views here.
@@ -218,3 +228,55 @@ def apply_job(request, job_id):
         'job': job
     }
     return render(request, 'job/apply_job.html', context)
+
+
+# Job Posting view
+class JobPostingWizardView(SessionWizardView):
+    template_name = 'job_posting.html'
+    form_list = JOB_POSTING_FORMS
+
+    def done(self, form_list, **kwargs):
+        company_details_form = form_list[0]
+        job_basic_details_form = form_list[1]
+
+        job_company_name = company_details_form.cleaned_data['job_company_name']
+        company, _ = Company.objects.get_or_create(name=job_company_name)
+        employee_count = company_details_form.cleaned_data['employee_count']
+        first_name = company_details_form.cleaned_data['first_name']
+        last_name = company_details_form.cleaned_data['last_name']
+        phone_number = company_details_form.cleaned_data['phone_number']
+        job_title = job_basic_details_form.cleaned_data['job_title']
+        job_location = job_basic_details_form.cleaned_data['job_address']
+        job_location_type = job_basic_details_form.cleaned_data['location_type']
+        country = job_basic_details_form.cleaned_data['country']
+        language = job_basic_details_form.cleaned_data['language']
+
+        # more form data to be retrieved later here
+
+        posted_by = self.request.user
+
+        # Creating a new Job instance
+        job = Job(
+            title=job_title,
+            description='',
+            company=company,
+            posted_by=posted_by,
+            location=job_location,
+            job_loctype=job_location_type,
+            employee_count=employee_count,
+            recruiter_firstname=first_name,
+            recruiter_lastname=last_name,
+            phone=phone_number,
+            country=country,
+            language=language,
+            # More attributes to be set here
+        )
+
+        job.save()
+
+        return render(self.request, 'job_posting_success.html')
+
+
+# class JobPostingSuccessView(View):
+#    def get(self, request):
+#        return render(request, 'company/job_posting_success.html')

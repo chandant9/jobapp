@@ -137,7 +137,7 @@ class CompanyDetailsForm(forms.Form):
 class JobBasicDetailsForm(forms.Form):
     country = CountryField().formfield(widget=CountrySelectWidget)
     language = forms.ChoiceField(choices=[
-                (lang.alpha_2, lang.name)
+                (lang.alpha_3, lang.name)
                 for lang in pycountry.languages
                 ], widget=forms.Select)
     job_title = forms.CharField(max_length=100)
@@ -145,5 +145,8 @@ class JobBasicDetailsForm(forms.Form):
     job_address = forms.CharField(max_length=100)
     language_requirement = forms.CharField(max_length=100)
     language_training_provided = forms.BooleanField(required=False)
+
+
+
 
 
