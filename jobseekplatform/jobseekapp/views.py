@@ -239,17 +239,21 @@ class JobPostingWizardView(NamedUrlSessionWizardView):
     template_name = 'company/job_posting.html'
     form_list = JOB_POSTING_FORMS
 
+# retrieves the company_name from registration process and assigns as initial to company_name in editable format
+    def get_form_initial(self, step):
+        initial = self.initial_dict.get(step, {})
+        registered_company_name = self.request.user.profile.company_name
+        initial['company_name'] = registered_company_name
+        return initial
+
     def done(self, form_list, **kwargs):
         for form in form_list:
             form.prefix = form.prefix or form.get_prefix()
         company_details_form = form_list[0]
         job_basic_form = form_list[1]
 
-        registered_company_name = self.request.user.profile.company_name
-
-        company_details_form = CompanyDetailsForm(initial={'company_name': registered_company_name})
         job_company_name = company_details_form.cleaned_data['company_name']
-        company, _ = Company.objects.get_or_create(name=job_company_name)
+        # company, _ = Company.objects.get_or_create(name=job_company_name)
         employee_count = company_details_form.cleaned_data['employee_count']
         first_name = company_details_form.cleaned_data['first_name']
         last_name = company_details_form.cleaned_data['last_name']
@@ -268,7 +272,7 @@ class JobPostingWizardView(NamedUrlSessionWizardView):
         job = Job(
             title=job_title,
             description='',
-            company=company,
+            company=job_company_name,
             posted_by=posted_by,
             location=job_location,
             job_loctype=job_location_type,
