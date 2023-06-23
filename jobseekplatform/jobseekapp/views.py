@@ -20,6 +20,7 @@ from django.contrib.auth.models import User
 from django.views import View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
+from django.views.generic import TemplateView
 
 # defined for JobPostingWizardView
 JOB_POSTING_FORMS = [
@@ -243,6 +244,7 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     form_list = JOB_POSTING_FORMS
     success_url = reverse_lazy('job_posting_success')
     success_message = "Job posting submitted successfully."
+    url_name = 'job_posting_wizard'
 
 # retrieves the company_name from registration process and the newly entered data for the form whle toggling between forms
     def get_form_initial(self, step):
@@ -255,11 +257,11 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     def done(self, form_list, **kwargs):
         company_details_form = form_list[0]
         job_basic_form = form_list[1]
-        job_contract_form = form_list[3]
+        job_contract_form = form_list[2]
 
         # CompanyDetailsForm (1)
         job_company_name = company_details_form.cleaned_data['company']
-        # company, _ = Company.objects.get_or_create(name=job_company_name)
+        company, _ = Company.objects.get_or_create(name=job_company_name)
         employee_count = company_details_form.cleaned_data['employee_count']
         first_name = company_details_form.cleaned_data['recruiter_firstname']
         last_name = company_details_form.cleaned_data['recruiter_lastname']
@@ -279,12 +281,11 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
         start_date = job_contract_form.cleaned_data['start_date']
 
         # more form data to be retrieved later here
-
         posted_by = self.request.user
 
         # Creating a new Job instance
         job = Job.objects.create(
-            company=job_company_name,
+            company=company,
             employee_count=employee_count,
             recruiter_firstname=first_name,
             recruiter_lastname=last_name,
@@ -317,3 +318,6 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
         messages.success(self.request, self.success_message)
         return super(JobPostingWizardView, self).done(form_list, **kwargs)
 
+
+class JobPostingSuccessView(TemplateView):
+    template_name = 'company/job_posting_success.html'
