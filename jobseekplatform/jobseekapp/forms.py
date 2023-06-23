@@ -121,25 +121,18 @@ class CompanyDetailsForm(forms.Form):
     last_name = forms.CharField(max_length=30)
     phone_number = forms.CharField(max_length=20)
 
-    # def __init__(self, *args, **kwargs):
-    #     initial_company_name = kwargs.pop('company_name', '')
-    #     super(CompanyDetailsForm, self).__init__(*args, **kwargs)
-    #     self.fields['company_name'].initial = initial_company_name
-    #
-    # # function to edit company name and keep the registered company name if not edited
-    # def clean_company_name(self):
-    #     company_name = self.cleaned_data.get('company_name')
-    #     if company_name:
-    #         return company_name.strip()
-    #     return ''
-
 
 class JobBasicDetailsForm(forms.Form):
     country = CountryField().formfield(widget=CountrySelectWidget)
-    language = forms.ChoiceField(choices=[
-                (lang.alpha_3, lang.name)
-                for lang in pycountry.languages
-                ], widget=forms.Select)
+
+    # Get the major spoken languages for each country
+    language_choices = []
+    for country in pycountry.countries:
+        languages = pycountry.languages.get(alpha_2=country.alpha_2)
+        if languages:
+            language_choices.append((languages.alpha_3, languages.name))
+
+    language = forms.ChoiceField(choices=language_choices, widget=forms.Select)
     job_title = forms.CharField(max_length=100)
     location_type = forms.ChoiceField(choices=LOCATION_TYPE_CHOICES)
     job_address = forms.CharField(max_length=100)
