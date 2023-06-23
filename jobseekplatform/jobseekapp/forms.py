@@ -9,6 +9,8 @@ from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 import pycountry
+from multiselectfield import MultiSelectFormField
+
 
 
 # defined for Resume validation check in JobApplicationForm class
@@ -109,35 +111,68 @@ class JobApplicationForm(forms.ModelForm):
             if file_extension not in ALLOWED_FILE_TYPES:
                 raise ValidationError(_('Invalid file type. Only PDF, DOC, and DOCX files are allowed.'))
 
+
+# Job posting forms
         return resume
 
 
-# Job posting forms
-
-class CompanyDetailsForm(forms.Form):
-    company_name = forms.CharField(max_length=100, required=False)
+class CompanyDetailsForm(forms.ModelForm):
+    company = forms.CharField(max_length=100, required=False)
     employee_count = forms.ChoiceField(choices=EMPLOYEE_COUNT_CHOICES)
-    first_name = forms.CharField(max_length=30)
-    last_name = forms.CharField(max_length=30)
-    phone_number = forms.CharField(max_length=20)
+    recruiter_firstname = forms.CharField(max_length=30)
+    recruiter_lastname = forms.CharField(max_length=30)
+    phone = forms.CharField(max_length=20)
+
+    class Meta:
+        model = Job
+        fields = ['company', 'employee_count', 'recruiter_firstname', 'recruiter_lastname', 'phone']
 
 
-class JobBasicDetailsForm(forms.Form):
+class JobBasicDetailsForm(forms.ModelForm):
     country = CountryField().formfield(widget=CountrySelectWidget)
-
-    # Get the major spoken languages for each country
-    language_choices = []
-    for country in pycountry.countries:
-        languages = pycountry.languages.get(alpha_2=country.alpha_2)
-        if languages:
-            language_choices.append((languages.alpha_3, languages.name))
-
-    language = forms.ChoiceField(choices=language_choices, widget=forms.Select)
+    language = forms.ChoiceField(choices=[], widget=forms.Select)
     job_title = forms.CharField(max_length=100)
-    location_type = forms.ChoiceField(choices=LOCATION_TYPE_CHOICES)
-    job_address = forms.CharField(max_length=100)
+    job_loctype = forms.ChoiceField(choices=LOCATION_TYPE_CHOICES)
+    location = forms.CharField(max_length=100)
     # language_requirement = forms.CharField(max_length=100)
     # language_training_provided = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Generate language choices based on major spoken languages for each country
+        language_choices = []
+        for country in pycountry.countries:
+            languages = pycountry.languages.get(alpha_2=country.alpha_2)
+            if languages:
+                language_choices.append((languages.alpha_3, languages.name))
+
+        self.fields['language'].choices = language_choices
+
+    class Meta:
+        model = Job
+        fields = ['country', 'language', 'job_title', 'job_loctype', 'location']
+
+
+class JobContractDetailsForm(forms.ModelForm):
+    job_type = forms.MultipleChoiceField(choices=Job.JOB_TYPE_CHOICES, widget=forms.CheckboxSelectMultiple)
+    schedule = forms.MultipleChoiceField(choices=Job.SCHEDULE_CHOICES, widget=forms.CheckboxSelectMultiple)
+    start_date_option = forms.ChoiceField(
+        label='Start Date Option',
+        choices=[('no', 'No'), ('yes', 'Yes')],
+        widget=forms.RadioSelect,
+        initial='no'
+    )
+    start_date = forms.DateField(
+        label='Start Date',
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False
+    )
+
+    class Meta:
+        model = Job
+        fields = ['job_type', 'schedule', 'start_date_option', 'start_date']
+
 
 
 
