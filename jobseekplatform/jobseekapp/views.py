@@ -24,6 +24,7 @@ from django.views.generic import TemplateView
 import logging
 from django.utils import timezone
 from django.contrib.auth.models import Group
+from django.http import HttpResponse
 
 # defined for JobPostingWizardView
 JOB_POSTING_FORMS = [
@@ -96,9 +97,11 @@ def recruiter_register(request):
             profile = Profile(user=user, role='recruiter', company_name=company_name)
             profile.save()
 
-            # group = Group.objects.get(name='Recruiters')
-            # user.groups.add(group)
-            # recruiter_group = RecruiterGroup.objects.get(group=group)
+            group = Group.objects.get(name='Recruiters')
+            user.groups.add(group)
+            recruiter_group = RecruiterGroup.objects.get_or_create(group=group)
+            recruiter_group.job_insert_privilege = True
+            recruiter_group.save()
 
             messages.success(request, 'Registration successful. Please log in.')
             return redirect('registration_success')
@@ -282,36 +285,48 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             else:
                 form_data.update(form.data)
 
-        job = Job.objects.create(
-            # CompanyDetailsForm (1)
-            company=form_data['company'],
-            employee_count=form_data['employee_count'],
-            recruiter_firstname=form_data['recruiter_firstname'],
-            recruiter_lastname=form_data['recruiter_lastname'],
-            phone=form_data['phone'],
-            # JobBasicDetailsForm (2)
-            country=form_data['country'],
-            language=form_data['language'],
-            title=form_data['title'],
-            job_loctype=form_data['job_loctype'],
-            location=form_data['location'],
-            # JobContractDetailsForm (3)
-            job_type=form_data['job_type'],
-            schedule=form_data['schedule'],
-            start_date_option=form_data['start_date_option'],
-            start_date=form_data['start_date'],
-            # to be added
-            description=form_data['description'],
-            salary=form_data['salary'],
-            posted_by=self.request.user,
-            created_at=timezone.now(),
-            updated_at=timezone.now(),
-            # Add more attributes as needed
-        )
+        # Check if the user has insert access
+        if self.has_insert_access():
+            job = Job.objects.create(
+                # CompanyDetailsForm (1)
+                company=form_data['company'],
+                employee_count=form_data['employee_count'],
+                recruiter_firstname=form_data['recruiter_firstname'],
+                recruiter_lastname=form_data['recruiter_lastname'],
+                phone=form_data['phone'],
+                # JobBasicDetailsForm (2)
+                country=form_data['country'],
+                language=form_data['language'],
+                title=form_data['title'],
+                job_loctype=form_data['job_loctype'],
+                location=form_data['location'],
+                # JobContractDetailsForm (3)
+                job_type=form_data['job_type'],
+                schedule=form_data['schedule'],
+                start_date_option=form_data['start_date_option'],
+                start_date=form_data['start_date'],
+                # to be added
+                description=form_data['description'],
+                salary=form_data['salary'],
+                posted_by=self.request.user,
+                created_at=timezone.now(),
+                updated_at=timezone.now(),
+                # Add more attributes as needed
+            )
 
-        # messages.success(self.request, "Job posting submitted successfully.")
-        # return redirect(reverse('job_posting_success'))
-        return super().done(form_list, **kwargs)
+            # messages.success(self.request, "Job posting submitted successfully.")
+            # return redirect(reverse('job_posting_success'))
+            return super().done(form_list, **kwargs)
+        else:
+            return HttpResponse("You do not have permission to post a Job.")
+
+    def has_insert_access(self):
+        # Check if the user belongs to the Recruiters group and has the job_insert_privilege
+        recruiters_group = Group.objects.get(name='Recruiters')
+        if recruiters_group in self.request.user.groups.all():
+            recruiter_group = RecruiterGroup.objects.get(group=recruiters_group)
+            return recruiter_group.job_insert_privilege
+        return False
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
