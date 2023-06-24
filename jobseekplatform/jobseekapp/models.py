@@ -46,7 +46,7 @@ class Job(models.Model):
     # JobBasicDetailsForm (2)
     country = models.CharField(max_length=50, default='')
     language = models.CharField(max_length=50, default='')
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=100)
     job_loctype = models.CharField(max_length=100, default='')
     location = models.CharField(max_length=100, null=True)
 
@@ -82,7 +82,7 @@ class Job(models.Model):
     start_date = models.DateField(null=True, blank=True)
 
     # TO BE ASSIGNED
-    description = models.TextField(null=True, blank=True)  # to be assigned
+    description = models.TextField(default='')  # to be assigned
     salary = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)  # to be assigned
 
     def __str__(self):
@@ -100,7 +100,7 @@ class Application(models.Model):
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)
     applied_at = models.DateTimeField(auto_now_add=True)
     resume = models.FileField(upload_to='resumes/', default='')
-    cover_letter = models.TextField(null = True, blank=True)
+    cover_letter = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"Application for {self.job.title} by {self.applicant.username}"

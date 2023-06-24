@@ -13,14 +13,16 @@ from django.utils.decorators import method_decorator
 # for profile view
 from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, JobPostForm, \
     RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm, \
-    CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm
+    CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm
 from django.contrib import messages
 from formtools.wizard.views import NamedUrlSessionWizardView
 from django.contrib.auth.models import User
 from django.views import View
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView
+import logging
+from django.utils import timezone
 
 # defined for JobPostingWizardView
 JOB_POSTING_FORMS = [
@@ -136,7 +138,7 @@ def base_view(request):
 
 @login_required
 def profile(request):
-    if request.methof == 'POST':
+    if request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
@@ -170,13 +172,13 @@ def home(request):
     return render(request, 'home.html')
 
 
-def cart_json_view(request):
-    cart_data = {
-        'item_count': 5,
-        'total_price': 100.0,
-    }
-
-    return JsonResponse(cart_data)
+# def cart_json_view(request):
+#     cart_data = {
+#         'item_count': 5,
+#         'total_price': 100.0,
+#     }
+#
+#     return JsonResponse(cart_data)
 
 
 def job_search(request):
@@ -238,15 +240,22 @@ def apply_job(request, job_id):
 
 
 # Job Posting view
-@method_decorator(login_required, name='dispatch')
 class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     template_name = 'company/job_posting.html'
-    form_list = JOB_POSTING_FORMS
+    url_name = 'job_posting_wizard'
+    form_list = [
+        ("company_details", CompanyDetailsForm),
+        ("job_basic", JobBasicDetailsForm),
+        ("job_contract", JobContractDetailsForm),
+        ("other_details", OtherDetailsForm),
+        # Add more form steps here
+    ]
     success_url = reverse_lazy('job_posting_success')
     success_message = "Job posting submitted successfully."
-    url_name = 'job_posting_wizard'
 
-# retrieves the company_name from registration process and the newly entered data for the form whle toggling between forms
+    # Define a logger
+    # logger = logging.getLogger(__name__)
+
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
         if step == "company_details":
@@ -254,69 +263,54 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             initial['company'] = registered_company_name
         return initial
 
+    # def form_valid(self, form):
+    #     # Print the cleaned form data
+    #     self.logger.info(form.cleaned_data)
+    #
+    #     return super().form_valid(form)
+
     def done(self, form_list, **kwargs):
-        company_details_form = form_list[0]
-        job_basic_form = form_list[1]
-        job_contract_form = form_list[2]
+        form_data = {}
+        for form in form_list:
+            if hasattr(form, 'cleaned_data'):
+                form_data.update(form.cleaned_data)
+            else:
+                form_data.update(form.data)
 
-        # CompanyDetailsForm (1)
-        job_company_name = company_details_form.cleaned_data['company']
-        company, _ = Company.objects.get_or_create(name=job_company_name)
-        employee_count = company_details_form.cleaned_data['employee_count']
-        first_name = company_details_form.cleaned_data['recruiter_firstname']
-        last_name = company_details_form.cleaned_data['recruiter_lastname']
-        phone_number = company_details_form.cleaned_data['phone']
-
-        # JobBasicDetailsForm (2)
-        country = job_basic_form.cleaned_data['country']
-        language = job_basic_form.cleaned_data['language']
-        job_title = job_basic_form.cleaned_data['job_title']
-        job_location_type = job_basic_form.cleaned_data['job_loctype']
-        job_location = job_basic_form.cleaned_data['location']
-
-        # JobContractDetailsForm (3)
-        job_type = job_contract_form.cleaned_data['job_type']
-        schedule = job_contract_form.cleaned_data['schedule']
-        start_date_option = job_contract_form.cleaned_data['start_date_option']
-        start_date = job_contract_form.cleaned_data['start_date']
-
-        # more form data to be retrieved later here
-        posted_by = self.request.user
-
-        # Creating a new Job instance
         job = Job.objects.create(
-            company=company,
-            employee_count=employee_count,
-            recruiter_firstname=first_name,
-            recruiter_lastname=last_name,
-            phone=phone_number,
-
-            country=country,
-            language=language,
-            title=job_title,
-            job_loctype=job_location_type,
-            location=job_location,
-
-            job_type=job_type,
-            schedule=schedule,
-            start_date_option=start_date_option,
-            start_date=start_date,
-
-            description='',
-            salary='',
-            posted_by=posted_by,
-
-            # More attributes to be set here
+            # CompanyDetailsForm (1)
+            company=form_data['company'],
+            employee_count=form_data['employee_count'],
+            recruiter_firstname=form_data['recruiter_firstname'],
+            recruiter_lastname=form_data['recruiter_lastname'],
+            phone=form_data['phone'],
+            # JobBasicDetailsForm (2)
+            country=form_data['country'],
+            language=form_data['language'],
+            title=form_data['title'],
+            job_loctype=form_data['job_loctype'],
+            location=form_data['location'],
+            # JobContractDetailsForm (3)
+            job_type=form_data['job_type'],
+            schedule=form_data['schedule'],
+            start_date_option=form_data['start_date_option'],
+            start_date=form_data['start_date'],
+            # to be added
+            description=form_data['description'],
+            salary=form_data['salary'],
+            posted_by=self.request.user,
+            created_at=timezone.now(),
+            updated_at=timezone.now(),
+            # Add more attributes as needed
         )
 
-        # job.save()
+        # messages.success(self.request, "Job posting submitted successfully.")
+        # return redirect(reverse('job_posting_success'))
+        return super().done(form_list, **kwargs)
 
-        # context = {
-        #     'form_list': form_list,
-        # }
-
-        messages.success(self.request, self.success_message)
-        return super(JobPostingWizardView, self).done(form_list, **kwargs)
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 class JobPostingSuccessView(TemplateView):

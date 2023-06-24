@@ -118,9 +118,9 @@ class JobApplicationForm(forms.ModelForm):
 
 class CompanyDetailsForm(forms.ModelForm):
     company = forms.CharField(max_length=100, required=False)
-    employee_count = forms.ChoiceField(choices=EMPLOYEE_COUNT_CHOICES)
-    recruiter_firstname = forms.CharField(max_length=30)
-    recruiter_lastname = forms.CharField(max_length=30)
+    employee_count = forms.ChoiceField(choices=EMPLOYEE_COUNT_CHOICES, required=False)
+    recruiter_firstname = forms.CharField(max_length=50)
+    recruiter_lastname = forms.CharField(max_length=50)
     phone = forms.CharField(max_length=20)
 
     class Meta:
@@ -131,9 +131,9 @@ class CompanyDetailsForm(forms.ModelForm):
 class JobBasicDetailsForm(forms.ModelForm):
     country = CountryField().formfield(widget=CountrySelectWidget)
     language = forms.ChoiceField(choices=[], widget=forms.Select)
-    job_title = forms.CharField(max_length=100)
-    job_loctype = forms.ChoiceField(choices=LOCATION_TYPE_CHOICES)
-    location = forms.CharField(max_length=100)
+    title = forms.CharField(max_length=100)
+    job_loctype = forms.ChoiceField(choices=LOCATION_TYPE_CHOICES, required=False)
+    location = forms.CharField(max_length=100, required=False)
     # language_requirement = forms.CharField(max_length=100)
     # language_training_provided = forms.BooleanField(required=False)
 
@@ -151,7 +151,7 @@ class JobBasicDetailsForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        fields = ['country', 'language', 'job_title', 'job_loctype', 'location']
+        fields = ['country', 'language', 'title', 'job_loctype', 'location']
 
 
 class JobContractDetailsForm(forms.ModelForm):
@@ -174,7 +174,13 @@ class JobContractDetailsForm(forms.ModelForm):
         fields = ['job_type', 'schedule', 'start_date_option', 'start_date']
 
 
+class OtherDetailsForm(forms.ModelForm):
+    description = forms.CharField(max_length=250, required=False)
+    salary = forms.DecimalField(max_digits=8, decimal_places=2, required=False)
 
+    class Meta:
+        model = Job
+        fields = ['salary', 'description']
 
 
 
