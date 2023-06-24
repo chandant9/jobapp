@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
-from multiselectfield import MultiSelectField
+from django.contrib.auth.models import User, Group
+# from multiselectfield import MultiSelectField
 
 
 # Used in profile model below
@@ -114,3 +114,12 @@ class Resume(models.Model):
     def __str__(self):
         return f"Resume for {self.user.username}"
 
+
+# Grant insert privilege to users
+
+class RecruiterGroup(models.Model):
+    group = models.OneToOneField(Group, on_delete=models.CASCADE, primary_key=True)
+    job_insert_privilege = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.group.name

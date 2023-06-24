@@ -2,7 +2,7 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Job, Resume, Application, Profile, Company
+from .models import Job, Resume, Application, Profile, Company, RecruiterGroup
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
@@ -23,6 +23,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView
 import logging
 from django.utils import timezone
+from django.contrib.auth.models import Group
 
 # defined for JobPostingWizardView
 JOB_POSTING_FORMS = [
@@ -94,6 +95,10 @@ def recruiter_register(request):
             company_name = form.cleaned_data['company_name']
             profile = Profile(user=user, role='recruiter', company_name=company_name)
             profile.save()
+
+            # group = Group.objects.get(name='Recruiters')
+            # user.groups.add(group)
+            # recruiter_group = RecruiterGroup.objects.get(group=group)
 
             messages.success(request, 'Registration successful. Please log in.')
             return redirect('registration_success')
