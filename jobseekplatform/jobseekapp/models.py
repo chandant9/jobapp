@@ -118,8 +118,11 @@ class Resume(models.Model):
 # Grant insert privilege to users
 
 class RecruiterGroup(models.Model):
-    group = models.OneToOneField(Group, on_delete=models.CASCADE, primary_key=True)
+    group = models.OneToOneField(Group, on_delete=models.CASCADE, primary_key=True, related_name='recruiter_group')
     job_insert_privilege = models.BooleanField(default=False)
 
     def __str__(self):
         return self.group.name
+
+    class Meta:
+        verbose_name_plural = 'Recruiter Groups'
