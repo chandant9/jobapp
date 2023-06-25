@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Job, Resume, Application, Profile
+from .models import Job, Resume, Application, Profile, Company
 # for resume validation check
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -73,6 +73,17 @@ class RecruiterRegistrationForm(UserCreationForm):
         model = User
         fields = ['username', 'company_name', 'email', 'password1', 'password2']
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        company_name = cleaned_data.get('company_name')
+
+        # Check for anomalies or additional validation
+        if company_name and company_name.isnumeric():
+            raise forms.ValidationError("Company name should not be a numeric value.")
+
+        return cleaned_data
+
 
 class JobSearchForm(forms.Form):
     keyword = forms.CharField(max_length=100, required=False)
@@ -127,6 +138,22 @@ class CompanyDetailsForm(forms.ModelForm):
         model = Job
         fields = ['company', 'employee_count', 'recruiter_firstname', 'recruiter_lastname', 'phone']
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Perform additional validation checks here
+        # For example, if phone number must be numeric:
+        phone = cleaned_data.get('phone')
+        if phone and not phone.isnumeric():
+            raise ValidationError("Phone number should only contain numeric characters.")
+
+        company_name = cleaned_data.get('company')
+        company, _ = Company.objects.get_or_create(name=company_name)
+
+        cleaned_data['company'] = company
+
+        return cleaned_data
+
 
 class JobBasicDetailsForm(forms.ModelForm):
     country = CountryField().formfield(widget=CountrySelectWidget)
@@ -153,6 +180,17 @@ class JobBasicDetailsForm(forms.ModelForm):
         model = Job
         fields = ['country', 'language', 'title', 'job_loctype', 'location']
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Perform additional validation checks here
+        # For example, if title must not contain certain characters:
+        title = cleaned_data.get('title')
+        if title and any(char in title for char in ['!', '@', '#']):
+            raise ValidationError("Title should not contain special characters.")
+
+        return cleaned_data
+
 
 class JobContractDetailsForm(forms.ModelForm):
     job_type = forms.MultipleChoiceField(choices=Job.JOB_TYPE_CHOICES, widget=forms.CheckboxSelectMultiple)
@@ -173,6 +211,13 @@ class JobContractDetailsForm(forms.ModelForm):
         model = Job
         fields = ['job_type', 'schedule', 'start_date_option', 'start_date']
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Perform additional validation checks here
+
+        return cleaned_data
+
 
 class OtherDetailsForm(forms.ModelForm):
     description = forms.CharField(max_length=250, required=False)
@@ -181,6 +226,13 @@ class OtherDetailsForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = ['salary', 'description']
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Perform additional validation checks here
+
+        return cleaned_data
 
 
 

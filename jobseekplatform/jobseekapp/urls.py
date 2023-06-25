@@ -17,7 +17,7 @@ Including another URLconf
 from django.urls import path, reverse_lazy
 from .views import job_list, login_view, logout_view, base_view, home, profile, \
     change_password, job_search, apply_job, candidate_register, recruiter_register, \
-    registration_success, role_selection_view, JobPostingWizardView, JOB_POSTING_FORMS, JobPostingSuccessView
+    registration_success, role_selection_view, JobPostingWizardView, JOB_POSTING_FORMS, JobPostingSuccessView, JobPostingErrorView
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 
@@ -46,4 +46,5 @@ urlpatterns = [
     path('job/apply_job/<int:job_id>/', apply_job, name='apply_job'),
     path('job_posting/<step>/', JobPostingWizardView.as_view(url_name='job_posting_wizard'), name='job_posting_wizard'),
     path('job_posting/success/', JobPostingSuccessView.as_view(), name='job_posting_success'),
+    path('job_posting/error/', JobPostingErrorView.as_view(), name='job_posting_error'),
 ]

@@ -23,7 +23,8 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView
 import logging
 from django.utils import timezone
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 
 # defined for JobPostingWizardView
@@ -97,11 +98,18 @@ def recruiter_register(request):
             profile = Profile(user=user, role='recruiter', company_name=company_name)
             profile.save()
 
-            group = Group.objects.get(name='Recruiters')
+            group_name = 'Recruiters'
+            try:
+                group = Group.objects.get(name=group_name)
+            except Group.DoesNotExist:
+                group = Group.objects.create(name=group_name)
+
             user.groups.add(group)
-            recruiter_group = RecruiterGroup.objects.get_or_create(group=group)
-            recruiter_group.job_insert_privilege = True
-            recruiter_group.save()
+
+            # Grant the add_job permission to the user
+            content_type = ContentType.objects.get_for_model(Job)
+            permission = Permission.objects.get(content_type=content_type, codename='add_job')
+            user.user_permissions.add(permission)
 
             messages.success(request, 'Registration successful. Please log in.')
             return redirect('registration_success')
@@ -212,19 +220,6 @@ def upload_resume(request):
     return render(request, 'upload_resume.html', {'form': form})
 
 
-def job_post(request):
-    if request.method == 'POST':
-        form = JobPostForm(request.POST)
-        if form.is_valid():
-            job = form.save(commit=False)
-            job.posted_by = request.user
-            job.save()
-            return redirect('job_post_success')
-    else:
-        form = JobPostForm()
-    return redirect(request, 'job_post.html', {'form': form})
-
-
 def apply_job(request, job_id):
     job = Job.objects.get(id=job_id)
 
@@ -251,18 +246,10 @@ def apply_job(request, job_id):
 class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     template_name = 'company/job_posting.html'
     url_name = 'job_posting_wizard'
-    form_list = [
-        ("company_details", CompanyDetailsForm),
-        ("job_basic", JobBasicDetailsForm),
-        ("job_contract", JobContractDetailsForm),
-        ("other_details", OtherDetailsForm),
-        # Add more form steps here
-    ]
+    form_list = [CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm]
+
     success_url = reverse_lazy('job_posting_success')
     success_message = "Job posting submitted successfully."
-
-    # Define a logger
-    # logger = logging.getLogger(__name__)
 
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
@@ -270,12 +257,6 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             registered_company_name = self.request.user.profile.company_name
             initial['company'] = registered_company_name
         return initial
-
-    # def form_valid(self, form):
-    #     # Print the cleaned form data
-    #     self.logger.info(form.cleaned_data)
-    #
-    #     return super().form_valid(form)
 
     def done(self, form_list, **kwargs):
         form_data = {}
@@ -287,6 +268,7 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
 
         # Check if the user has insert access
         if self.has_insert_access():
+
             job = Job.objects.create(
                 # CompanyDetailsForm (1)
                 company=form_data['company'],
@@ -313,15 +295,17 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
                 updated_at=timezone.now(),
                 # Add more attributes as needed
             )
+            job_id = job.id
 
-            # messages.success(self.request, "Job posting submitted successfully.")
-            # return redirect(reverse('job_posting_success'))
-            return super().done(form_list, **kwargs)
+            # Store the job ID in the session for future reference if needed
+            self.request.session['job_id'] = job_id
+
+            return render(self.request, 'company/job_posting_success.html', {'form_data': [form.cleaned_data for form in form_list]})
         else:
-            return HttpResponse("You do not have permission to post a Job.")
+            messages.error(self.request, "You do not have permission to post a job.")
+            return redirect('job_posting_error')
 
     def has_insert_access(self):
-        # Check if the user belongs to the Recruiters group and has the job_insert_privilege
         recruiters_group = Group.objects.get(name='Recruiters')
         if recruiters_group in self.request.user.groups.all():
             recruiter_group = RecruiterGroup.objects.get(group=recruiters_group)
@@ -331,6 +315,10 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+
+class JobPostingErrorView(TemplateView):
+    template_name = 'company/job_posting_error.html'
 
 
 class JobPostingSuccessView(TemplateView):
