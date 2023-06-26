@@ -5,7 +5,6 @@ class AuthenticationMiddleware:
     EXCLUDED_URLS = ('/home/',
                      '/login/',
                      '/register/',
-                     '/job-search/',
                      '/register/role_selection/',
                      '/register/candidate_register/',
                      '/register/recruiter_register/',

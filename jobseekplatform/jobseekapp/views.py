@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 # for profile view
-from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, JobPostForm, \
+from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, \
     RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm, \
     CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm
 from django.contrib import messages
@@ -190,9 +190,15 @@ def home(request):
     if form.is_valid():
         keyword = form.cleaned_data['keyword']
         location = form.cleaned_data['location']
-        jobs = Job.objects.filter(title__icontains=keyword, location__icontains=location)
+        if request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.role == 'recruiter':
+            jobs = Job.objects.filter(posted_by=request.user, title__icontains=keyword, location__icontains=location)
+        else:
+            jobs = Job.objects.filter(title__icontains=keyword, location__icontains=location)
     else:
-        jobs = Job.objects.all()
+        if request.user.is_authenticated and hasattr(request.user, 'profile') and request.user.profile.role == 'recruiter':
+            jobs = Job.objects.filter(posted_by=request.user)
+        else:
+            jobs = Job.objects.all()
 
     context = {
         'jobs': jobs,
@@ -214,17 +220,6 @@ def home(request):
 #     return JsonResponse(cart_data)
 
 
-def job_search(request):
-    form = JobSearchForm(request.GET)
-    if form.is_valid():
-        keyword = form.cleaned_data['keyword']
-        location = form.cleaned_data['location']
-        jobs = Job.objects.filter(title__icontains=keyword, location__icontains=location)
-    else:
-        jobs = Job.objects.all()
-    return render(request, 'job_search.html', {'jobs': jobs, 'form': form})
-
-
 def job_details(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     return render(request, 'job_details.html', {'job': job})
@@ -239,7 +234,7 @@ def upload_resume(request):
             return redirect('resume_upload_success')
     else:
         form = ResumeUploadForm()
-    return render(request, 'upload_resume.html', {'form': form})
+    return render(request, 'job/upload_resume.html', {'form': form})
 
 
 def apply_job(request, job_id):

@@ -5,6 +5,8 @@
     <title>Role Selection</title>
 </head>
 <body>
+    <p><a href="{% url 'base_view' %}">Home</a> </p>
+    <h2>Please select your Role below: </h2>
     <form method="post">
       {% csrf_token %}
       {{ form.as_p }}

@@ -9,12 +9,15 @@
 
     <form action="" method="GET">
         {{ form.as_table }}
-        <button type="submit">Search</button>
+        <button type="submit">Seek Jobs</button>
     </form>
 
     {% for job in jobs %}
-        <h3><a href="{% url 'job_details' job_id=job.id %}">{{ job.title }}</a></h3>
-        <p>{{ job.description }}</p>
+        <h3><a href="{% url 'job_details' job_id=job.id %}">{{ job.title }}</a>, {{ job.job_loctype }}</h3>
+        <p>{{ job.salary }} {{ job.job_type }}</p>
+        <p>{{ job.schedule }}</p>
+        <li>{{ job.description }}</li>
+
         <!-- Display other job information as needed -->
     {% empty %}
         <p>No Jobs found.</p>

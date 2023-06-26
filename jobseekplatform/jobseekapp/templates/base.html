@@ -10,16 +10,14 @@
         <ul>
             {% if user.is_authenticated %}
                 <li><a href="{% url 'home' %}">Home</a> </li>
-                <li><a href="{% url 'job_search' %}">Job Search</a> </li>
                 {% if request.user.profile.role == 'recruiter' %}
                     <li><a href="{% url 'job_posting_wizard' step='company_details' %}">Post Jobs</a></li>
                 {% endif %}
                 <li><a href="{% url 'logout' %}">Logout</a> </li>
             {% else %}
                 <li><a href="{% url 'base_view' %}">Home</a> </li>
-                <li><a href="{% url 'job_search' %}">Job Search</a> </li>
                 <li><a href="{% url 'login' %}">Login</a> </li>
-                <li><a href="{% url 'register' %}">Register</a> </li>
+                <li><a href="{% url 'register' %}">Create an account</a> </li>
             {% endif %}
         </ul>
     </nav>

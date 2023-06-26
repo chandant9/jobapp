@@ -12,5 +12,13 @@
   <p>Description: {{ job.description }}</p>
   <!-- Add more job details as needed -->
 
+
+  <!-- Apply Job button -->
+  {% if user.is_authenticated %}
+    <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">Apply Job</a>
+  {% else %}
+    <a href="{% url 'login' %}?next={% url 'apply_job' job.id %}" class="btn btn-primary">Apply Job</a>
+  {% endif %}
+
   <!-- Add any additional content or styling here -->
 {% endblock %}

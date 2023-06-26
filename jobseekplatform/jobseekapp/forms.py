@@ -10,12 +10,11 @@ from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 import pycountry
 from multiselectfield import MultiSelectFormField
-
-
+from django.conf import settings
 
 # defined for Resume validation check in JobApplicationForm class
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-ALLOWED_FILE_TYPES = ['pdf', 'doc', 'docx']
+MAX_FILE_SIZE = settings.MAX_RESUME_FILE_SIZE
+ALLOWED_FILE_TYPES = settings.ALLOWED_RESUME_FILE_TYPES
 # defined for CompanyDetailsForm class
 EMPLOYEE_COUNT_CHOICES = [
     ('1-10', '1 to 10'),
@@ -37,6 +36,7 @@ LOCATION_TYPE_CHOICES = [
     ('Physical location', 'Need to be available physically at work location'),
     ('Outdoors', 'Need to always be on the road, travel'),
 ]
+
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -95,11 +95,19 @@ class ResumeUploadForm(forms.ModelForm):
         model = Resume
         fields = ['file']
 
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+        if file:
+            # Check file size
+            if file.size > MAX_FILE_SIZE:
+                raise forms.ValidationError(f'File size exceeds the maximum limit of {MAX_FILE_SIZE / (1024 * 1024)}MB.')
 
-class JobPostForm(forms.ModelForm):
-    class Meta:
-        model = Job
-        fields = ['title', 'description', 'location', 'salary']
+            # Check file type
+            file_extension = file.name.split('.')[-1].lower()
+            if file_extension not in ALLOWED_FILE_TYPES:
+                raise forms.ValidationError('Invalid file type. Only PDF, DOC, and DOCX files are allowed.')
+
+        return file
 
 
 class JobApplicationForm(forms.ModelForm):
@@ -115,18 +123,17 @@ class JobApplicationForm(forms.ModelForm):
         if resume:
             # Check file size
             if resume.size > MAX_FILE_SIZE:
-                raise ValidationError(_('File size exceeds the maximum limit of 10MB.'))
+                raise forms.ValidationError(f'File size exceeds the maximum limit of {MAX_FILE_SIZE / (1024 * 1024)}MB.')
 
             # Check file type
             file_extension = resume.name.split('.')[-1].lower()
             if file_extension not in ALLOWED_FILE_TYPES:
-                raise ValidationError(_('Invalid file type. Only PDF, DOC, and DOCX files are allowed.'))
+                raise forms.ValidationError('Invalid file type. Only PDF, DOC, and DOCX files are allowed.')
 
-
-# Job posting forms
         return resume
 
 
+# Job Posting Forms
 class CompanyDetailsForm(forms.ModelForm):
     company = forms.CharField(max_length=100, required=False)
     employee_count = forms.ChoiceField(choices=EMPLOYEE_COUNT_CHOICES, required=False)

@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.urls import path, reverse_lazy
 from .views import job_list, login_view, logout_view, base_view, home, profile, \
-    change_password, job_search, apply_job, candidate_register, recruiter_register, \
-    registration_success, role_selection_view, JobPostingWizardView, JOB_POSTING_FORMS, JobPostingSuccessView, \
-    JobPostingErrorView, job_details
+    change_password, candidate_register, recruiter_register, \
+    registration_success, role_selection_view, JobPostingWizardView, JobPostingSuccessView, \
+    JobPostingErrorView, job_details, upload_resume, apply_job
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 
@@ -43,10 +43,10 @@ urlpatterns = [
     # for profile and change password views path
     path('profile/', profile, name='profile'),
     path('change-password/', change_password, name='change_password'),
-    path('job-search/', job_search, name='job_search'),
-    path('job/apply_job/<int:job_id>/', apply_job, name='apply_job'),
     path('job_posting/<step>/', JobPostingWizardView.as_view(url_name='job_posting_wizard'), name='job_posting_wizard'),
     path('job_posting/success/', JobPostingSuccessView.as_view(), name='job_posting_success'),
     path('company/job_posting/error/', JobPostingErrorView.as_view(), name='job_posting_error'),
     path('job-details/<int:job_id>/', job_details, name='job_details'),
+    path('job/application/<int:job_id>/', apply_job, name='apply_job'),
+    path('job/resume-upload/', upload_resume, name='upload_resume'),
 ]
