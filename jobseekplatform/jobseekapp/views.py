@@ -6,7 +6,7 @@ from .models import Job, Resume, Application, Profile, Company, RecruiterGroup
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 # for login required decorator
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -223,6 +223,11 @@ def job_search(request):
     else:
         jobs = Job.objects.all()
     return render(request, 'job_search.html', {'jobs': jobs, 'form': form})
+
+
+def job_details(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    return render(request, 'job_details.html', {'job': job})
 
 
 def upload_resume(request):

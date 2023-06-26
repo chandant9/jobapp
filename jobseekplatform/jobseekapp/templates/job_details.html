@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Job Details</h2>
+  <h3>{{ job.title }}</h3>
+  <h4>{{ job.company }}</h4>
+  <p>Location: {{ job.location }} {{ job.country }}</p>
+  <p>Location type: {{ job.job_loctype }}</p>
+  <p>Salary: {{ job.salary }}</p>
+  <p>Job type: {{ job.job_type }}</p>
+  <p>Schedule: {{ job.schedule }}</p>
+  <p>Description: {{ job.description }}</p>
+  <!-- Add more job details as needed -->
+
+  <!-- Add any additional content or styling here -->
+{% endblock %}
