@@ -106,10 +106,15 @@ def recruiter_register(request):
 
             user.groups.add(group)
 
+            # Create or update the RecruiterGroup
+            recruiter_group, created = RecruiterGroup.objects.get_or_create(group=group)
+            recruiter_group.job_insert_privilege = True  # Set the job insert privilege as needed
+            recruiter_group.save()
+
             # Grant the add_job permission to the user
-            content_type = ContentType.objects.get_for_model(Job)
-            permission = Permission.objects.get(content_type=content_type, codename='add_job')
-            user.user_permissions.add(permission)
+            # content_type = ContentType.objects.get_for_model(Job)
+            # permission = Permission.objects.get(content_type=content_type, codename='add_job')
+            # user.user_permissions.add(permission)
 
             messages.success(request, 'Registration successful. Please log in.')
             return redirect('registration_success')
@@ -268,7 +273,6 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
 
         # Check if the user has insert access
         if self.has_insert_access():
-
             job = Job.objects.create(
                 # CompanyDetailsForm (1)
                 company=form_data['company'],
