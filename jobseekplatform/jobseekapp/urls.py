@@ -27,11 +27,11 @@ urlpatterns = [
     path('', base_view, name='base_view'),  # for base
     # path('cart.json', cart_json_view, name='cart_json'),
     path('home/', home, name='home'),  # for home
-    path('register/candidate_register/', candidate_register, name='candidate_register'),
-    path('register/recruiter_register/', recruiter_register, name='recruiter_register'),
+    path('register/candidate/', candidate_register, name='candidate_register'),
+    path('register/recruiter/', recruiter_register, name='recruiter_register'),
     path('register/', role_selection_view, name='register'),
-    path('register/role_selection', role_selection_view, name='role_selection'),  # for user registration
-    path('register/registration_success/', registration_success, name='registration_success'),
+    # path('register/role_selection', role_selection_view, name='role_selection'),  # for user registration
+    path('register/registration-success/', registration_success, name='registration_success'),
     path('login/', login_view, name='login'),  # for user login
     path('logout/', logout_view, name='logout'),  # for logout
     # django built-in password reset functionality
@@ -46,5 +46,5 @@ urlpatterns = [
     path('job/apply_job/<int:job_id>/', apply_job, name='apply_job'),
     path('job_posting/<step>/', JobPostingWizardView.as_view(url_name='job_posting_wizard'), name='job_posting_wizard'),
     path('job_posting/success/', JobPostingSuccessView.as_view(), name='job_posting_success'),
-    path('job_posting/error/', JobPostingErrorView.as_view(), name='job_posting_error'),
+    path('company/job_posting/error/', JobPostingErrorView.as_view(), name='job_posting_error'),
 ]

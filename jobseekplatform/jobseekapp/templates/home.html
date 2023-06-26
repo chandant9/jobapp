@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Welcome to the Job Seek Platform, {{ user.username }}!</h2>
-    <!-- Add the other content here -->
+    {% if username %}
+        <h2>Welcome to the Job Seek Platform, {{ username }}!</h2>
+    {% else %}
+        <h2>Welcome to the Job Seek Platform!</h2>
+    {% endif %}
+
+    <form action="" method="GET">
+        {{ form.as_table }}
+        <button type="submit">Search</button>
+    </form>
+
+    {% for job in jobs %}
+        <h3>{{ job.title }}</h3>
+        <p>{{ job.description }}</p>
+        <!-- Display other job information as needed -->
+    {% endfor %}
 {% endblock %}

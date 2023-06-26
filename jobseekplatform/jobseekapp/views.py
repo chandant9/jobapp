@@ -151,10 +151,7 @@ def logout_view(request):
 
 
 def base_view(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        return render(request, 'base.html')
+    return render(request, 'home.html')
 
 
 @login_required
@@ -188,9 +185,24 @@ def change_password(request):
     return render(request, 'change_password.html', {'form': form})
 
 
-@login_required
 def home(request):
-    return render(request, 'home.html')
+    form = JobSearchForm(request.GET)
+    if form.is_valid():
+        keyword = form.cleaned_data['keyword']
+        location = form.cleaned_data['location']
+        jobs = Job.objects.filter(title__icontains=keyword, location__icontains=location)
+    else:
+        jobs = Job.objects.all()
+
+    context = {
+        'jobs': jobs,
+        'form': form,
+    }
+
+    if request.user.is_authenticated:
+        context['username'] = request.user.username
+
+    return render(request, 'home.html', context)
 
 
 # def cart_json_view(request):
@@ -251,14 +263,19 @@ def apply_job(request, job_id):
 class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     template_name = 'company/job_posting.html'
     url_name = 'job_posting_wizard'
-    form_list = [CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm]
+    form_list = [
+        ('company_details', CompanyDetailsForm),
+        ('job_basic', JobBasicDetailsForm),
+        ('job_contract', JobContractDetailsForm),
+        ('other_details', OtherDetailsForm)
+    ]
 
-    success_url = reverse_lazy('job_posting_success')
-    success_message = "Job posting submitted successfully."
+    # success_url = reverse_lazy('job_posting_success')
+    # success_message = "Job posting submitted successfully."
 
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
-        if step == "company_details":
+        if step == 'company_details':
             registered_company_name = self.request.user.profile.company_name
             initial['company'] = registered_company_name
         return initial
@@ -304,7 +321,7 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             # Store the job ID in the session for future reference if needed
             self.request.session['job_id'] = job_id
 
-            return render(self.request, 'company/job_posting_success.html', {'form_data': [form.cleaned_data for form in form_list]})
+            return render(self.request, 'job_posting_success', {'form_data': [form.cleaned_data for form in form_list]})
         else:
             messages.error(self.request, "You do not have permission to post a job.")
             return redirect('job_posting_error')

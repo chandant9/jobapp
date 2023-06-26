@@ -24,12 +24,14 @@
 </table>
     {% if wizard.steps.current == wizard.steps.last %}
       <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% translate "prev step" %}</button>
+      <input type="submit" value="{% translate "Submit" %}"/>
     {% elif wizard.steps.prev %}
       <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% translate "prev step" %}</button>
       <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.next }}">{% translate "next step" %}</button>
+      <input type="submit" value="{% translate "Save and continue" %}"/>
     {% else %}
       <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.next }}">{% translate "next step" %}</button>
+      <input type="submit" value="{% translate "Save and continue" %}"/>
     {% endif %}
-  <input type="submit" value="{% translate "submit" %}"/>
 </form>
 {% endblock %}

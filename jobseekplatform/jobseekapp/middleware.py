@@ -2,7 +2,8 @@ from django.shortcuts import redirect
 
 
 class AuthenticationMiddleware:
-    EXCLUDED_URLS = ('/login/',
+    EXCLUDED_URLS = ('/home/',
+                     '/login/',
                      '/register/',
                      '/job-search/',
                      '/register/role_selection/',
@@ -14,5 +15,5 @@ class AuthenticationMiddleware:
 
     def __call__(self, request):
         if not request.user.is_authenticated and not request.path_info.startswith(self.EXCLUDED_URLS):
-            return redirect('login')
+            return redirect('home')
         return self.get_response(request)
