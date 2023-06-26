@@ -8,7 +8,9 @@ class AuthenticationMiddleware:
                      '/register/role_selection/',
                      '/register/candidate_register/',
                      '/register/recruiter_register/',
-                     '/job-details/',)
+                     '/job-details/',
+                     '/job-details/<int:job_id>/',
+                     )
 
     def __init__(self, get_response):
         self.get_response = get_response

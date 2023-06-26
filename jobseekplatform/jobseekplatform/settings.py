@@ -15,7 +15,8 @@ import os
 from decouple import config
 from dotenv import load_dotenv
 
-#Defined for resume file types
+
+# Defined for resume file types
 MAX_RESUME_FILE_SIZE = 10 * 1024 * 1024  # 10MB (adjust the value as needed)
 ALLOWED_RESUME_FILE_TYPES = ['.pdf', '.doc', '.docx']
 

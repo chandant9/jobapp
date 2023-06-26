@@ -95,17 +95,6 @@ class Job(models.Model):
         return self.schedule.split(',') if self.schedule else []
 
 
-class Application(models.Model):
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
-    applicant = models.ForeignKey(User, on_delete=models.CASCADE)
-    applied_at = models.DateTimeField(auto_now_add=True)
-    resume = models.FileField(upload_to='resumes/', default='')
-    cover_letter = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Application for {self.job.title} by {self.applicant.username}"
-
-
 class Resume(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='resumes/')
@@ -113,6 +102,21 @@ class Resume(models.Model):
 
     def __str__(self):
         return f"Resume for {self.user.username}"
+
+
+class Application(models.Model):
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
+    applicant = models.ForeignKey(User, on_delete=models.CASCADE)
+    applied_at = models.DateTimeField(auto_now_add=True)
+    resume = models.ForeignKey(Resume, on_delete=models.CASCADE)
+    cover_letter = models.TextField(null=True, blank=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"Application for {self.job.title} by {self.applicant.username}"
 
 
 # Grant insert privilege to users

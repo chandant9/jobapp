@@ -26,6 +26,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
+from django.contrib.auth.views import LoginView
+
 
 # defined for JobPostingWizardView
 JOB_POSTING_FORMS = [
@@ -128,21 +130,33 @@ def registration_success(request):
 
 
 # 3) User login
-def login_view(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('home')
-            else:
-                form.add_error(None, 'Invalid username or password')
-    else:
-        form = LoginForm()
-    return render(request, 'login.html', {'form': form})
+# def login_view(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['password']
+#             user = authenticate(request, username=username, password=password)
+#             if user is not None:
+#                 login(request, user)
+#                 return redirect('home')
+#             else:
+#                 form.add_error(None, 'Invalid username or password')
+#     else:
+#         form = LoginForm()
+#     return render(request, 'login.html', {'form': form})
+
+
+class CustomLoginView(LoginView):
+    template_name = 'login.html'  # Replace with your actual login template
+    authentication_form = LoginForm
+
+    def get_success_url(self):
+        # Customize the success URL after login
+        if 'next' in self.request.GET:
+            return self.request.GET['next']
+        else:
+            return reverse_lazy('home')
 
 
 def logout_view(request):
@@ -245,6 +259,7 @@ def apply_job(request, job_id):
         if form.is_valid():
             job_application = form.save(commit=False)
             job_application.job = job
+            job_application.applicant = request.user
             job_application.save()
 
             messages.success(request, 'Job application submitted successfully.')
