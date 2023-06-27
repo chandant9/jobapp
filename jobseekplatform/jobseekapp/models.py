@@ -96,6 +96,23 @@ class Job(models.Model):
         return self.schedule.split(',') if self.schedule else []
 
 
+class JobQuestion(models.Model):
+    QUESTION_TYPES = (
+        ('text', 'Text'),
+        ('numeric', 'Numeric'),
+        ('multiple_choice', 'Multiple Choice'),
+        ('radio_button', 'Radio Button'),
+    )
+
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='questions')
+    text = models.CharField(max_length=300)
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    options = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.text
+
+
 class Resume(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='resumes/')
