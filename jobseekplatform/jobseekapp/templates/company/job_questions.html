@@ -1,4 +1,4 @@
-<form method="post" enctype="multipart/form-data">
+<form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
   {% for form in formset %}
@@ -6,3 +6,4 @@
   {% endfor %}
   <button type="submit">Submit</button>
 </form>
+

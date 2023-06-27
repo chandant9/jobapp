@@ -11,7 +11,7 @@ from django_countries.widgets import CountrySelectWidget
 import pycountry
 from multiselectfield import MultiSelectFormField
 from django.conf import settings
-from django.forms import formset_factory
+
 
 # defined for Resume validation check in JobApplicationForm class
 MAX_FILE_SIZE = settings.MAX_RESUME_FILE_SIZE
@@ -261,4 +261,4 @@ class JobQuestionsForm(forms.Form):
         return cleaned_data
 
 
-JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=1, validate_max=True, max_num=10)
+# JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=1, validate_max=True, max_num=10)
