@@ -254,11 +254,11 @@ class JobQuestionsForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        question = cleaned_data.get('question')
-        question_type = cleaned_data.get('question_type')
-        answer = cleaned_data.get('answer')
+        # question = cleaned_data.get('question')
+        # question_type = cleaned_data.get('question_type')
+        # answer = cleaned_data.get('answer')
 
         return cleaned_data
 
 
-JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=1)
+JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=1, validate_max=True, max_num=10)

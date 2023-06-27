@@ -298,7 +298,8 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
         if self.steps.current == 'job_questions':
-            context['job_id'] = self.request.session.get('job_id')
+            formset = JobQuestionsFormSet()
+            context['formset'] = formset
         return context
 
     def done(self, form_list, **kwargs):
@@ -340,7 +341,7 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             )
             # Check if job-specific questions should be added
             if form_data.get('has_questions'):
-                questions_formset = form_list[-1]  # Get the JobQuestionsFormSet from the last form_list entry
+                questions_formset = form_list[-1]()  # Get the JobQuestionsFormSet from the last form_list entry
                 for question_form in questions_formset:
                     question = question_form.cleaned_data.get('question')
                     question_type = question_form.cleaned_data.get('question_type')
@@ -368,8 +369,16 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
         recruiters_group = Group.objects.get(name='Recruiters')
         if recruiters_group in self.request.user.groups.all():
             recruiter_group = RecruiterGroup.objects.get(group=recruiters_group)
-            return recruiter_group.job_insert_privilege
+            return recruiter_group.job_insert_privilege and recruiter_group.job_question_insert_privilege
         return False
+
+    def get_next_step(self, step=None):
+        if step == 'other_details':
+            form_data = self.get_cleaned_data_for_step('other_details') or {}
+            if not form_data.get('has_questions'):
+                return self.get_step_index(
+                    'done')  # Skip the 'job_questions' step if 'has_questions' is False
+        return super().get_next_step(step)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
