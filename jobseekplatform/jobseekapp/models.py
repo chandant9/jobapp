@@ -84,6 +84,7 @@ class Job(models.Model):
     # TO BE ASSIGNED
     description = models.TextField(default='')  # to be assigned
     salary = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)  # to be assigned
+    has_questions = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
@@ -110,10 +111,10 @@ class Application(models.Model):
     applied_at = models.DateTimeField(auto_now_add=True)
     resume = models.ForeignKey(Resume, on_delete=models.CASCADE)
     cover_letter = models.TextField(null=True, blank=True)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField()
-    phone_number = models.CharField(max_length=20)
+    first_name = models.CharField(max_length=100, default='', blank=True)
+    last_name = models.CharField(max_length=100, default='', blank=True)
+    email = models.EmailField(default='', blank=True)
+    phone_number = models.CharField(max_length=20, default='', blank=True)
 
     def __str__(self):
         return f"Application for {self.job.title} by {self.applicant.username}"

@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Apply for Job</h1>
+  <h1>Apply for Job: {{ job.title }}</h1>
+  <h2>Company: {{ job.company }}</h2>
 
   <form method="POST" action="{% url 'apply_job' job_id=job.id %}">
     {% csrf_token %}
 
-    {{ forms.as_p }}
+    {{ form.as_p }}
 
     <button type="submit">Submit Application</button>
   </form>

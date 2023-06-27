@@ -112,7 +112,7 @@ class ResumeUploadForm(forms.ModelForm):
 class JobApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ['cover_letter', 'resume']
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'resume', 'cover_letter']
         widgets = {
             'cover_letter': forms.Textarea(attrs={'rows': 5}),
         }
@@ -239,6 +239,7 @@ class OtherDetailsForm(forms.ModelForm):
         # Perform additional validation checks here
 
         return cleaned_data
+
 
 
 
