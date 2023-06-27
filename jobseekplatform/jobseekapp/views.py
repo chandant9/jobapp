@@ -1,6 +1,6 @@
 from django.shortcuts import render
 # For API 1)
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from .models import Job, Resume, Application, Profile, Company, RecruiterGroup
 # For User Registration and User login 2)3)
@@ -27,6 +27,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 
 # defined for JobPostingWizardView
@@ -153,8 +154,9 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         # Customize the success URL after login
-        if 'next' in self.request.GET:
-            return self.request.GET['next']
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return HttpResponseRedirect(next_url)
         else:
             return reverse_lazy('home')
 
