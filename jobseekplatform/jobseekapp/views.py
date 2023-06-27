@@ -2,7 +2,7 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from .models import Job, Resume, Application, Profile, Company, RecruiterGroup
+from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 # for profile view
 from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, \
     RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm, \
-    CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm
+    CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm, JobQuestionsFormSet
 from django.contrib import messages
 from formtools.wizard.views import NamedUrlSessionWizardView
 from django.contrib.auth.models import User
@@ -284,11 +284,9 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
         ('company_details', CompanyDetailsForm),
         ('job_basic', JobBasicDetailsForm),
         ('job_contract', JobContractDetailsForm),
-        ('other_details', OtherDetailsForm)
+        ('other_details', OtherDetailsForm),
+        ('job_questions', JobQuestionsFormSet),
     ]
-
-    # success_url = reverse_lazy('job_posting_success')
-    # success_message = "Job posting submitted successfully."
 
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
@@ -296,6 +294,12 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             registered_company_name = self.request.user.profile.company_name
             initial['company'] = registered_company_name
         return initial
+
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        if self.steps.current == 'job_questions':
+            context['job_id'] = self.request.session.get('job_id')
+        return context
 
     def done(self, form_list, **kwargs):
         form_data = {}
@@ -328,11 +332,28 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
                 # to be added
                 description=form_data['description'],
                 salary=form_data['salary'],
+                has_questions=form_data['has_questions'],
                 posted_by=self.request.user,
                 created_at=timezone.now(),
                 updated_at=timezone.now(),
                 # Add more attributes as needed
             )
+            # Check if job-specific questions should be added
+            if form_data.get('has_questions'):
+                questions_formset = form_list[-1]  # Get the JobQuestionsFormSet from the last form_list entry
+                for question_form in questions_formset:
+                    question = question_form.cleaned_data.get('question')
+                    question_type = question_form.cleaned_data.get('question_type')
+                    answer = question_form.cleaned_data.get('answer')
+
+                    # Process and save the question data to the database
+                    job_question = JobQuestion.objects.create(
+                        job=job,
+                        question=question,
+                        question_type=question_type,
+                        answer=answer,
+                    )
+
             job_id = job.id
 
             # Store the job ID in the session for future reference if needed

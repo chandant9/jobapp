@@ -105,12 +105,12 @@ class JobQuestion(models.Model):
     )
 
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='questions')
-    text = models.CharField(max_length=300)
+    question = models.CharField(max_length=300)
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
-    options = models.TextField(blank=True)
+    answer = models.TextField(blank=True)
 
     def __str__(self):
-        return self.text
+        return self.question
 
 
 class Resume(models.Model):

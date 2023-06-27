@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Job, Resume, Application, Profile, Company
+from .models import Job, Resume, Application, Profile, Company, JobQuestion
 # for resume validation check
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -11,6 +11,7 @@ from django_countries.widgets import CountrySelectWidget
 import pycountry
 from multiselectfield import MultiSelectFormField
 from django.conf import settings
+from django.forms import formset_factory
 
 # defined for Resume validation check in JobApplicationForm class
 MAX_FILE_SIZE = settings.MAX_RESUME_FILE_SIZE
@@ -228,19 +229,36 @@ class JobContractDetailsForm(forms.ModelForm):
 class OtherDetailsForm(forms.ModelForm):
     description = forms.CharField(max_length=250, required=False)
     salary = forms.DecimalField(max_digits=8, decimal_places=2, required=False)
+    has_questions = forms.BooleanField(label='Add job-specific questions', required=False)
 
     class Meta:
         model = Job
-        fields = ['salary', 'description']
+        fields = ['salary', 'description', 'has_questions']
 
     def clean(self):
         cleaned_data = super().clean()
+        has_questions = cleaned_data.get('has_questions')
+        description = cleaned_data.get('description')
+        salary = cleaned_data.get('salary')
 
-        # Perform additional validation checks here
+        if has_questions and (not description or not salary):
+            raise forms.ValidationError("Please provide a description and salary before adding job-specific questions.")
 
         return cleaned_data
 
 
+class JobQuestionsForm(forms.Form):
+    question = forms.CharField(label='Question')
+    question_type = forms.ChoiceField(label='Question Type', choices=JobQuestion.QUESTION_TYPES)
+    answer = forms.CharField(label='Answer', required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        question = cleaned_data.get('question')
+        question_type = cleaned_data.get('question_type')
+        answer = cleaned_data.get('answer')
+
+        return cleaned_data
 
 
-
+JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=1)
