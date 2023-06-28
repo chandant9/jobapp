@@ -97,8 +97,12 @@ def recruiter_register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.save()
+
+            # Retrieve or create the Company instance based on the company name
             company_name = form.cleaned_data['company_name']
-            profile = Profile(user=user, role='recruiter', company_name=company_name)
+            company, created = Company.objects.get_or_create(name=company_name)
+
+            profile = Profile(user=user, role='recruiter', company=company)
             profile.save()
 
             group_name = 'Recruiters'
@@ -291,15 +295,15 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
         if step == 'company_details':
-            registered_company_name = self.request.user.profile.company_name
+            registered_company_name = self.request.user.profile.company
             initial['company'] = registered_company_name
         return initial
 
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
         if self.steps.current == 'job_questions':
-            JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=5)
-            context['formset'] = JobQuestionsFormSet()
+            formset = self.get_job_questions_formset()  # Retrieve or create the formset instance
+            context['formset'] = formset
         return context
 
     def done(self, form_list, **kwargs):
@@ -339,25 +343,23 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
                 updated_at=timezone.now(),
                 # Add more attributes as needed
             )
-            # Check if job-specific questions should be added
-            if form_data.get('has_questions'):
-                JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=5)
-                job_questions_formset = JobQuestionsFormSet(self.request.POST)
+            # Retrieve the existing job_questions_formset instance
+            job_questions_formset = self.get_job_questions_formset()
 
-                if job_questions_formset.is_valid():
-                    for form in job_questions_formset:
-                        question = form.cleaned_data.get('question')
-                        question_type = form.cleaned_data.get('question_type')
-                        answer = form.cleaned_data.get('answer')
-                        # Process and save the question data to the database
-                        JobQuestion.objects.create(
-                            job=job,
-                            question=question,
-                            question_type=question_type,
-                            answer=answer,
-                        )
-                else:
-                    messages.error(self.request, "Invalid job questions formset data.")
+            if job_questions_formset.is_valid():
+                for form in job_questions_formset:
+                    question = form.cleaned_data.get('question')
+                    question_type = form.cleaned_data.get('question_type')
+                    answer = form.cleaned_data.get('answer')
+                    # Process and save the question data to the database
+                    JobQuestion.objects.create(
+                        job=job,
+                        question=question,
+                        question_type=question_type,
+                        answer=answer,
+                    )
+            else:
+                messages.error(self.request, "Invalid job questions formset data.")
 
             job_id = job.id
 
@@ -375,6 +377,12 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             recruiter_group = RecruiterGroup.objects.get(group=recruiters_group)
             return recruiter_group.job_insert_privilege and recruiter_group.job_question_insert_privilege
         return False
+
+    def get_job_questions_formset(self):
+        JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=5, can_delete=True)
+        formset_data = self.get_cleaned_data_for_step('job_questions')
+        formset = JobQuestionsFormSet(formset_data or None, prefix='job_questions')
+        return formset
 
     def get_next_step(self, step=None):
         if step == 'other_details':

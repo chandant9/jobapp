@@ -135,7 +135,7 @@ class JobApplicationForm(forms.ModelForm):
 
 # Job Posting Forms
 class CompanyDetailsForm(forms.ModelForm):
-    company = forms.CharField(max_length=100, required=False)
+    company = forms.CharField(max_length=100, required=False, disabled=True)
     employee_count = forms.ChoiceField(choices=EMPLOYEE_COUNT_CHOICES, required=False)
     recruiter_firstname = forms.CharField(max_length=50)
     recruiter_lastname = forms.CharField(max_length=50)
