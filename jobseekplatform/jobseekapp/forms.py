@@ -112,6 +112,32 @@ class ResumeUploadForm(forms.ModelForm):
 
 
 class JobApplicationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        job = kwargs.pop('job')
+        super().__init__(*args, **kwargs)
+
+        job_questions = job.questions.all()
+
+        for question in job_questions:
+            field_name = f'question_{question.id}'
+
+            if question.question_type == 'text':
+                self.fields[field_name] = forms.CharField(
+                    label=question.question,
+                    max_length=255
+                )
+            elif question.question_type == 'numeric':
+                self.fields[field_name] = forms.IntegerField(
+                    label=question.question
+                )
+            elif question.question_type in ['multiple_choice', 'radio_button']:
+                choices = [(option.strip(), option.strip()) for option in question.answer_options.split(',')]
+                self.fields[field_name] = forms.ChoiceField(
+                    label=question.question,
+                    choices=choices,
+                    widget=forms.RadioSelect
+                )
+
     class Meta:
         model = Application
         fields = ['first_name', 'last_name', 'email', 'phone_number', 'resume', 'cover_letter']

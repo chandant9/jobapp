@@ -2,7 +2,7 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion
+from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion, CandidateAnswer
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
@@ -262,17 +262,22 @@ def apply_job(request, job_id):
     job = Job.objects.get(id=job_id)
 
     if request.method == 'POST':
-        form = JobApplicationForm(request.POST, request.FILES)
+        form = JobApplicationForm(request.POST, request.FILES, job=job)
+
         if form.is_valid():
             job_application = form.save(commit=False)
             job_application.job = job
             job_application.applicant = request.user
             job_application.save()
 
+            for question in job.questions.all():
+                answer = form.cleaned_data.get(f'question_{question.id}')
+                CandidateAnswer.objects.create(application=job_application, question=question, answer=answer)
+
             messages.success(request, 'Job application submitted successfully.')
             return redirect('home')
     else:
-        form = JobApplicationForm()
+        form = JobApplicationForm(job=job)
 
     context = {
         'form': form,

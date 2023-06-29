@@ -134,6 +134,15 @@ class Application(models.Model):
         return f"Application for {self.job.title} by {self.applicant.username}"
 
 
+class CandidateAnswer(models.Model):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='candidate_answers')
+    question = models.ForeignKey(JobQuestion, on_delete=models.CASCADE)
+    answer = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.answer
+
+
 # Grant insert privilege to users
 
 class RecruiterGroup(models.Model):

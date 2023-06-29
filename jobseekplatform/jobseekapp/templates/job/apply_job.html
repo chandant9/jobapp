@@ -1,14 +1,37 @@
 {% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block head %}
+    {{ form.media }}
+{% endblock %}
 
 {% block content %}
-  <h1>Apply for Job: {{ job.title }}</h1>
-  <h2>Company: {{ job.company }}</h2>
+    <h1>Job Application</h1>
+    <p>Job: {{ job.title }}</p>
+    <p>Company: {{ job.company }}</p>
 
-  <form method="POST" action="{% url 'apply_job' job_id=job.id %}">
-    {% csrf_token %}
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-    {{ form.as_p }}
+        {{ form.non_field_errors }}
 
-    <button type="submit">Submit Application</button>
-  </form>
+        {% for field in form.visible_fields %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field|as_crispy_field }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        {% for question in job.questions.all %}
+            <div class="form-group">
+                <label for="id_question_{{ question.id }}">{{ question.question }}</label>
+                {{ form[f'question_{question.id}']|as_crispy_field }}
+                {{ form.errors.get(f'question_{question.id}') }}
+            </div>
+        {% endfor %}
+
+        <button type="submit">{% translate "Submit" %}</button>
+    </form>
 {% endblock %}
