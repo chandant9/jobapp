@@ -82,6 +82,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'custom_filters': 'jobseekapp.custom_filters',
+            },
         },
     },
 ]
@@ -140,6 +143,7 @@ AUTH_PASSWORD_VALIDATORS = [
 #     },
 # }
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 
 # Internationalization
