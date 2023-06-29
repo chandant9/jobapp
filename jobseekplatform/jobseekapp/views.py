@@ -27,7 +27,8 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
-from django.forms import formset_factory
+from django.forms import modelformset_factory
+
 
 
 # defined for JobPostingWizardView
@@ -302,7 +303,7 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
     def get_context_data(self, form, **kwargs):
         context = super().get_context_data(form=form, **kwargs)
         if self.steps.current == 'job_questions':
-            formset = self.get_job_questions_formset()  # Retrieve or create the formset instance
+            formset = self.get_job_questions_formset()
             context['formset'] = formset
         return context
 
@@ -345,19 +346,19 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             )
             # Retrieve the existing job_questions_formset instance
             job_questions_formset = self.get_job_questions_formset()
-
             if job_questions_formset.is_valid():
+                job_questions_formset.save(commit=False)
                 for form in job_questions_formset:
                     question = form.cleaned_data.get('question')
                     question_type = form.cleaned_data.get('question_type')
                     answer = form.cleaned_data.get('answer')
-                    # Process and save the question data to the database
                     JobQuestion.objects.create(
                         job=job,
                         question=question,
                         question_type=question_type,
                         answer=answer,
                     )
+                job_questions_formset.save()  # Save the formset with the updated data
             else:
                 messages.error(self.request, "Invalid job questions formset data.")
 
@@ -366,7 +367,7 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
             # Store the job ID in the session for future reference if needed
             self.request.session['job_id'] = job_id
 
-            return render(self.request, 'company/job_posting_success.html', {'form_data': [form.cleaned_data for form in form_list]})
+            return render(self.request, 'company/job_posting_success.html', {'form_data': [form.cleaned_data for form in form_list], 'formset': job_questions_formset})
         else:
             messages.error(self.request, "You do not have permission to post a job.")
             return redirect('job_posting_error')
@@ -379,17 +380,17 @@ class JobPostingWizardView(SuccessMessageMixin, NamedUrlSessionWizardView):
         return False
 
     def get_job_questions_formset(self):
-        JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=5, can_delete=True)
+        JobQuestionsFormSet = modelformset_factory(JobQuestion, form=JobQuestionsForm, extra=5, can_delete=True)
         formset_data = self.get_cleaned_data_for_step('job_questions')
         formset = JobQuestionsFormSet(formset_data or None, prefix='job_questions')
         return formset
 
-    def get_next_step(self, step=None):
-        if step == 'other_details':
-            form_data = self.get_cleaned_data_for_step('other_details') or {}
-            if not form_data.get('has_questions'):
-                return self.get_step_index('done')  # Skip the 'job_questions' step if 'has_questions' is False
-        return super().get_next_step(step)
+    # def get_next_step(self, step=None):
+    #     if step == 'other_details':
+    #         form_data = self.get_cleaned_data_for_step('other_details') or {}
+    #         if not form_data.get('has_questions'):
+    #             return self.get_step_index('done')  # Skip the 'job_questions' step if 'has_questions' is False
+    #     return super().get_next_step(step)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

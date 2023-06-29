@@ -1,10 +1,11 @@
-<form method="post">
-  {% csrf_token %}
-  {{ formset.management_form }}
-  {% for form in formset %}
-    {{ form.prefix }}
-    {{ form.as_table }}
-  {% endfor %}
-  <button type="submit">Submit</button>
+<form method="POST" enctype="multipart/form-data">
+{% load crispy_forms_tags %}
+{% csrf_token %}
+{{ formset.management_form }}
+
+{% for form in formset %}
+    {{ form.as_p }}
+{% endfor %}
+<button type="submit">Save Questions</button>
 </form>
 

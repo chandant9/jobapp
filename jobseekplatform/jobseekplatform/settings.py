@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'jobseekapp',
     'countries_plus',
     'formtools',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -122,26 +123,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-    'loggers': {
-        'jobseekapp': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django.request': {
+#             'handlers': ['console'],
+#             'propagate': True,
+#             'level': 'DEBUG',
+#         }
+#     },
+# }
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

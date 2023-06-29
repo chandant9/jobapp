@@ -247,18 +247,20 @@ class OtherDetailsForm(forms.ModelForm):
         return cleaned_data
 
 
-class JobQuestionsForm(forms.Form):
-    question = forms.CharField(label='Question')
-    question_type = forms.ChoiceField(label='Question Type', choices=JobQuestion.QUESTION_TYPES)
-    answer = forms.CharField(label='Answer', required=False)
+class JobQuestionsForm(forms.ModelForm):
+    class Meta:
+        model = JobQuestion
+        fields = ['question', 'question_type', 'answer']
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # question = cleaned_data.get('question')
-        # question_type = cleaned_data.get('question_type')
-        # answer = cleaned_data.get('answer')
-
-        return cleaned_data
-
-
-# JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=1, validate_max=True, max_num=10)
+    # def clean_answer(self):
+    #     question_type = self.cleaned_data.get('question_type')
+    #     answer = self.cleaned_data.get('answer')
+    #
+    #     if question_type == 'multiple_choice' or question_type == 'radio_button':
+    #         if answer and ',' not in answer:
+    #             raise forms.ValidationError("For multiple choice or radio button question types, the answer should have at least two options separated by commas.")
+    #     elif question_type == 'text' or question_type == 'numeric':
+    #         if answer:
+    #             raise forms.ValidationError("The answer field should be left blank for text or numeric question types.")
+    #
+    #     return answer
