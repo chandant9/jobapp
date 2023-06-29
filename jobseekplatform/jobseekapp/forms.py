@@ -11,6 +11,7 @@ from django_countries.widgets import CountrySelectWidget
 import pycountry
 from multiselectfield import MultiSelectFormField
 from django.conf import settings
+from django.forms import formset_factory
 
 
 # defined for Resume validation check in JobApplicationForm class
@@ -251,6 +252,9 @@ class JobQuestionsForm(forms.ModelForm):
     class Meta:
         model = JobQuestion
         fields = ['question', 'question_type', 'answer']
+
+
+JobQuestionsFormSet = formset_factory(JobQuestionsForm, extra=2)
 
     # def clean_answer(self):
     #     question_type = self.cleaned_data.get('question_type')

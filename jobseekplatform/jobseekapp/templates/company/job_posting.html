@@ -4,6 +4,7 @@
 
 {% block head %}
     {{ wizard.form.media }}
+    {{ formset.media }}
 {% endblock %}
 
 {% block content %}
@@ -13,10 +14,9 @@
         <table>
         {{ wizard.management_form }}
         {{ wizard.form.management_form }}
-            {% if form.prefix != "job_questions" %}
+
                 {{ wizard.form }}
-            {% endif %}
-            {% include "company/job_questions.html" %}
+
         </table>
         {% if wizard.steps.current == wizard.steps.last %}
           <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% translate "prev step" %}</button>
