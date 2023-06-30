@@ -409,5 +409,12 @@ class JobPostingErrorView(TemplateView):
     template_name = 'company/job_posting_error.html'
 
 
-# class JobPostingSuccessView(TemplateView):
-#     template_name = 'company/job_posting_success.html'
+# To be implemented in the future
+# @login_required(login_url='login')
+# def view_application(request, application_id):
+#     # Retrieve the application
+#     application = Application.objects.get(id=application_id)
+#
+#     # Perform additional processing
+##
+#     return render(request, 'job/application_detail.html', context)
