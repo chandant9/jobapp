@@ -155,3 +155,15 @@ class RecruiterGroup(models.Model):
 
     class Meta:
         verbose_name_plural = 'Recruiter Groups'
+
+
+class CandidateGroup(models.Model):
+    group = models.OneToOneField(Group, on_delete=models.CASCADE, primary_key=True, related_name='candidate_group')
+    application_insert_privilege = models.BooleanField(default=False)
+    job_answer_insert_privilege = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.group.name
+
+    class Meta:
+        verbose_name_plural = 'Candidate Groups'
