@@ -2,13 +2,26 @@
 
 {% block content %}
   <h2>Apply for Job</h2>
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {% for question in form %}
+    {% for field in form %}
       <div class="form-group">
-        {{ question.label_tag }}
-        {{ question }}
+        {{ field.label_tag }}
+        {{ field }}
 
+        {% if field.name == 'existing_resume' %}
+          {% if field.field.queryset.exists %}
+            <p>Select an Existing Resume:</p>
+            {{ field }}
+            <ul>
+              {% for resume in field.field.queryset %}
+                <li><a href="{{ resume.file.url }}">{{ resume.file.name }}</a></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>No existing resumes found.</p>
+          {% endif %}
+        {% endif %}
       </div>
     {% endfor %}
     <button type="submit" class="btn btn-primary">Apply</button>

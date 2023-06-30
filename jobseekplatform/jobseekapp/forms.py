@@ -112,9 +112,16 @@ class ResumeUploadForm(forms.ModelForm):
 
 
 class JobApplicationForm(forms.ModelForm):
+    existing_resume = forms.ModelChoiceField(queryset=Resume.objects.none(), required=False,
+                                             empty_label='Select an existing resume')
+    new_resume = forms.FileField(required=False)
+
     def __init__(self, *args, **kwargs):
         job = kwargs.pop('job')
+        user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
+
+        self.fields['existing_resume'].queryset = Resume.objects.filter(user=user)
 
         job_questions = job.questions.all()
 
@@ -140,24 +147,32 @@ class JobApplicationForm(forms.ModelForm):
 
     class Meta:
         model = Application
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'resume', 'cover_letter']
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'existing_resume', 'new_resume', 'cover_letter']
         widgets = {
             'cover_letter': forms.Textarea(attrs={'rows': 5}),
         }
 
-    def clean_resume(self):
-        resume = self.cleaned_data.get('resume')
-        if resume:
-            # Check file size
-            if resume.size > MAX_FILE_SIZE:
+    def clean(self):
+        cleaned_data = super().clean()
+        existing_resume = cleaned_data.get('existing_resume')
+        new_resume = cleaned_data.get('new_resume')
+
+        if not existing_resume and not new_resume:
+            raise forms.ValidationError('Please select an existing resume or upload a new resume.')
+        elif existing_resume and new_resume:
+            raise forms.ValidationError("Please select only one option: existing resume or new resume.")
+
+        # Check file size
+        if new_resume:
+            if new_resume.size > MAX_FILE_SIZE:
                 raise forms.ValidationError(f'File size exceeds the maximum limit of {MAX_FILE_SIZE / (1024 * 1024)}MB.')
 
             # Check file type
-            file_extension = resume.name.split('.')[-1].lower()
+            file_extension = new_resume.name.split('.')[-1].lower()
             if file_extension not in ALLOWED_FILE_TYPES:
                 raise forms.ValidationError('Invalid file type. Only PDF, DOC, and DOCX files are allowed.')
 
-        return resume
+        return cleaned_data
 
 
 # Job Posting Forms

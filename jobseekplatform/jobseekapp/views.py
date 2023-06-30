@@ -131,7 +131,7 @@ def recruiter_register(request):
             # Create or update the RecruiterGroup
             recruiter_group, created = RecruiterGroup.objects.get_or_create(group=group)
             recruiter_group.job_insert_privilege = True  # Set the job insert privilege as needed
-            recruiter_group.job_question_insert_privilege = True # Set the question insert privilege as needed
+            recruiter_group.job_question_insert_privilege = True  # Set the question insert privilege as needed
             recruiter_group.save()
 
             # Grant the add_job permission to the user
@@ -275,9 +275,13 @@ def upload_resume(request):
 
 def apply_job(request, job_id):
     job = Job.objects.get(id=job_id)
+    user = request.user
+
+    # Retrieve the user's uploaded resumes
+    user_resumes = Resume.objects.filter(user=user)
 
     if request.method == 'POST':
-        form = JobApplicationForm(request.POST, request.FILES, job=job)
+        form = JobApplicationForm(request.POST, request.FILES, job=job, user=user)
 
         if form.is_valid():
             job_application = form.save(commit=False)
@@ -292,11 +296,12 @@ def apply_job(request, job_id):
             messages.success(request, 'Job application submitted successfully.')
             return redirect('home')
     else:
-        form = JobApplicationForm(job=job)
+        form = JobApplicationForm(job=job, user=user)
 
     context = {
         'form': form,
-        'job': job
+        'job': job,
+        'user_resumes': user_resumes
     }
     return render(request, 'job/apply_job.html', context)
 
