@@ -1,44 +1,16 @@
 {% extends 'base.html' %}
-{% load i18n %}
-{% load crispy_forms_tags %}
-{% load custom_filters %}  # Load the custom filter
 
 {% block content %}
-  <h1>Apply for Job</h1>
-  <form method="post" enctype="multipart/form-data">
+  <h2>Apply for Job</h2>
+  <form method="post">
     {% csrf_token %}
-    {% for question in job.questions.all %}
+    {% for question in form %}
       <div class="form-group">
-        <label for="question_{{ question.id }}">{{ question.question }}</label>
-        {% if question.question_type == 'text' or question.question_type == 'numeric' %}
-          <input type="text" id="question_{{ question.id }}" name="question_{{ question.id }}" class="form-control">
-        {% elif question.question_type == 'multiple_choice' %}
-          {% for answer in question.answer|split_string:'|' %}  # Use the custom filter
-            <div class="form-check">
-              <input type="checkbox" id="question_{{ question.id }}_{{ forloop.counter }}" name="question_{{ question.id }}[]" value="{{ answer }}">
-              <label for="question_{{ question.id }}_{{ forloop.counter }}">{{ answer }}</label>
-            </div>
-          {% endfor %}
-        {% elif question.question_type == 'radio_button' %}
-          {% for answer in question.answer|split_string:'|' %}  # Use the custom filter
-            <div class="form-check">
-              <input type="radio" id="question_{{ question.id }}_{{ forloop.counter }}" name="question_{{ question.id }}" value="{{ answer }}">
-              <label for="question_{{ question.id }}_{{ forloop.counter }}">{{ answer }}</label>
-            </div>
-          {% endfor %}
-        {% endif %}
+        {{ question.label_tag }}
+        {{ question }}
 
-        {% with question_id="question_"|add:question.id|stringformat:"s" %}
-          {% if form.errors %}
-            {% if form.errors.get(question_id|stringformat:"s") %}
-              <div class="alert alert-danger">
-                {{ form.errors.get(question_id|stringformat:"s")|striptags }}
-              </div>
-            {% endif %}
-          {% endif %}
-        {% endwith %}
       </div>
     {% endfor %}
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Apply</button>
   </form>
 {% endblock %}
