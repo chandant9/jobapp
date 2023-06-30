@@ -2,7 +2,7 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion, CandidateAnswer
+from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion, CandidateAnswer, CandidateGroup
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
@@ -84,6 +84,20 @@ def candidate_register(request):
             profile = Profile(user=user, role='candidate')
             profile.save()
 
+            group_name = 'Candidates'
+            try:
+                group = Group.objects.get(name=group_name)
+            except Group.DoesNotExist:
+                group = Group.objects.create(name=group_name)
+
+            user.groups.add(group)
+
+            # Create or update the CandidateGroup
+            candidate_group, created = CandidateGroup.objects.get_or_create(group=group)
+            candidate_group.application_insert_privilege = True  # Set the application insert privilege as needed
+            candidate_group.job_answer_insert_privilege = True  # Set the answer insert privilege as needed
+            candidate_group.save()
+
             messages.success(request, 'Registration successful. Please log in.')
             return redirect('registration_success')
     else:
@@ -117,6 +131,7 @@ def recruiter_register(request):
             # Create or update the RecruiterGroup
             recruiter_group, created = RecruiterGroup.objects.get_or_create(group=group)
             recruiter_group.job_insert_privilege = True  # Set the job insert privilege as needed
+            recruiter_group.job_question_insert_privilege = True # Set the question insert privilege as needed
             recruiter_group.save()
 
             # Grant the add_job permission to the user
