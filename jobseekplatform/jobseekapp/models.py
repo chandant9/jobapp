@@ -110,15 +110,6 @@ class JobQuestion(models.Model):
         return self.question
 
 
-class Resume(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resumes')
-    file = models.FileField(upload_to='resumes/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Resume for {self.user.username}"
-
-
 class CandidateProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='candidate_profile')
     street_address = models.CharField(max_length=100, blank=True)
@@ -131,10 +122,18 @@ class CandidateProfile(models.Model):
     education = models.CharField(max_length=255, blank=True)
     work_experience = models.TextField(blank=True)
     phone_num = models.CharField(max_length=20, blank=True)
-    resume = models.ForeignKey('Resume', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
+
+
+class Resume(models.Model):
+    profile = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name='resumes')
+    file = models.FileField(upload_to='resumes/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Resume for {self.file.name}"
 
 
 class Application(models.Model):

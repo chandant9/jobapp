@@ -4,7 +4,27 @@
   <h2>Candidate Profile</h2>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+    <ul>
+    <li>{{ form.username.label_tag }} {{ form.username }}</li>
+    <li>{{ form.first_name.label_tag }} {{ form.first_name }}</li>
+    <li>{{ form.last_name.label_tag }} {{ form.last_name }}</li>
+    <li>{{ form.street_address.label_tag }} {{ form.street_address }}</li>
+    <li>{{ form.unit_apt_num.label_tag }} {{ form.unit_apt_num }}</li>
+    <li>{{ form.county_district.label_tag }} {{ form.county_district }}</li>
+    <li>{{ form.city.label_tag }} {{ form.city }}</li>
+    <li>{{ form.province_state.label_tag }} {{ form.province_state }}</li>
+    <li>{{ form.zip_postal_code.label_tag }} {{ form.zip_postal_code }}</li>
+    <li>{{ form.country.label_tag }} {{ form.country }}</li>
+    <li>{{ form.education.label_tag }} {{ form.education }}</li>
+    <li>{{ form.work_experience.label_tag }} {{ form.work_experience }}</li>
+    <li>{{ form.phone_num.label_tag }} {{ form.phone_num }}</li>
+
+    {% if profile.resume %}
+      <p>Existing Resume: <a href="{{ profile.resume.file.url }}">{{ profile.resume.file.name }}</a></p>
+    {% endif %}
+    <label for="id_resume">Upload New Resume:</label>
+    <input type="file" name="resume" id="id_resume">
+    </ul>
     <button type="submit" class="btn btn-primary">Update Profile</button>
   </form>
 {% endblock %}

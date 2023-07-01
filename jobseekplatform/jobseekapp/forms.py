@@ -115,12 +115,13 @@ class CandidateProfileForm(forms.ModelForm):
     username = forms.CharField(required=True)
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
+    resume = forms.FileField(required=False)
 
     class Meta:
         model = CandidateProfile
         fields = ['username', 'first_name', 'last_name', 'street_address', 'unit_apt_num', 'county_district', 'city',
                   'province_state', 'zip_postal_code', 'country', 'education',
-                  'work_experience', 'phone_num', 'resume']
+                  'work_experience', 'phone_num']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -132,11 +133,17 @@ class CandidateProfileForm(forms.ModelForm):
         profile = super().save(commit=False)
         user = profile.user
         user.username = self.cleaned_data['username']
-        user.first_name = self.cleaned_data['firs_name']
+        user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         if commit:
             profile.save()
             user.save()
+
+            # Handle uploaded resume
+            resume = self.cleaned_data.get('resume')
+            if resume:
+                Resume.objects.create(profile=profile, file=resume)
+
         return profile
 
 

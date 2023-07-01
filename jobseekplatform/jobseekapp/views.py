@@ -278,7 +278,7 @@ def upload_resume(request):
 @login_required
 def candidate_profile(request):
     user = request.user
-    profile, created = CandidateProfile.objects.get_or_create(user=user)
+    profile = CandidateProfile.objects.get(user=user)
 
     if request.method == 'POST':
         form = CandidateProfileForm(request.POST, request.FILES, instance=profile)
