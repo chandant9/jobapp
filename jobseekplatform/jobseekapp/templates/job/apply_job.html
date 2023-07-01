@@ -4,7 +4,7 @@
   <h2>Apply for Job</h2>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {% for field in form %}
+    {% for field in form.visible_fields %}
       <div class="form-group">
         {{ field.label_tag }}
         {{ field }}
@@ -12,12 +12,6 @@
         {% if field.name == 'existing_resume' %}
           {% if field.field.queryset.exists %}
             <p>Select an Existing Resume:</p>
-            {{ field }}
-            <ul>
-              {% for resume in field.field.queryset %}
-                <li><a href="{{ resume.file.url }}">{{ resume.file.name }}</a></li>
-              {% endfor %}
-            </ul>
           {% else %}
             <p>No existing resumes found.</p>
           {% endif %}

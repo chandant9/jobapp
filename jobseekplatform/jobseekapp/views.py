@@ -308,7 +308,8 @@ def upload_resume(request):
     if request.method == 'POST':
         form = ResumeUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            resume = Resume(user=request.user, file=form.cleaned_data['file'])
+            resume = form.save(commit=False)
+            resume.user = request.user
             resume.save()
             return redirect('resume_upload_success')
     else:
@@ -320,8 +321,11 @@ def apply_job(request, job_id):
     job = Job.objects.get(id=job_id)
     user = request.user
 
+    # Retrieve the user's candidate profile
+    candidate_profile = CandidateProfile.objects.get(user=user)
+
     # Retrieve the user's uploaded resumes
-    user_resumes = Resume.objects.filter(user=user)
+    user_resumes = candidate_profile.resumes.all()
 
     if request.method == 'POST':
         form = JobApplicationForm(request.POST, request.FILES, job=job, user=user)

@@ -157,7 +157,8 @@ class JobApplicationForm(forms.ModelForm):
         user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
 
-        self.fields['existing_resume'].queryset = Resume.objects.filter(user=user)
+        candidate_profile = CandidateProfile.objects.get(user=user)
+        self.fields['existing_resume'].queryset = candidate_profile.resumes.all()
 
         job_questions = job.questions.all()
 
@@ -180,6 +181,10 @@ class JobApplicationForm(forms.ModelForm):
                     choices=choices,
                     widget=forms.RadioSelect
                 )
+        self.fields['first_name'].initial = user.first_name
+        self.fields['last_name'].initial = user.last_name
+        self.fields['email'].initial = user.email
+        self.fields['phone_number'].initial = candidate_profile.phone_num
 
     class Meta:
         model = Application
