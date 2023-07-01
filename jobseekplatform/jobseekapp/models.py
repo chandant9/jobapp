@@ -128,7 +128,7 @@ class CandidateProfile(models.Model):
 
 
 class Resume(models.Model):
-    profile = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name='resumes')
+    profile = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name='resumes', null=True)
     file = models.FileField(upload_to='resumes/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
