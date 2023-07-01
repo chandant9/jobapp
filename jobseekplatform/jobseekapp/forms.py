@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Job, Resume, Application, Profile, Company, JobQuestion
+from .models import Job, Resume, Application, Profile, Company, JobQuestion, CandidateProfile
 # for resume validation check
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -109,6 +109,14 @@ class ResumeUploadForm(forms.ModelForm):
                 raise forms.ValidationError('Invalid file type. Only PDF, DOC, and DOCX files are allowed.')
 
         return file
+
+
+class CandidateProfileForm(forms.ModelForm):
+    class Meta:
+        model = CandidateProfile
+        fields = ['street_address', 'unit_apt_num', 'county_district', 'city',
+                  'province_state', 'zip_postal_code', 'country', 'education',
+                  'work_experience', 'phone_num', 'resume']
 
 
 class JobApplicationForm(forms.ModelForm):

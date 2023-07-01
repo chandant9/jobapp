@@ -2,7 +2,8 @@ from django.shortcuts import render
 # For API 1)
 from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion, CandidateAnswer, CandidateGroup
+from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion, \
+    CandidateAnswer, CandidateGroup, CandidateProfile
 # For User Registration and User login 2)3)
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
@@ -13,7 +14,8 @@ from django.utils.decorators import method_decorator
 # for profile view
 from .forms import ProfileForm, LoginForm, JobSearchForm, ResumeUploadForm, \
     RoleSelectionForm, CandidateRegistrationForm, RecruiterRegistrationForm, JobApplicationForm, \
-    CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm, JobQuestionsFormSet
+    CompanyDetailsForm, JobBasicDetailsForm, JobContractDetailsForm, OtherDetailsForm, JobQuestionsFormSet, \
+    CandidateProfileForm
 from django.contrib import messages
 from formtools.wizard.views import NamedUrlSessionWizardView
 from django.contrib.auth.models import User
@@ -271,6 +273,36 @@ def upload_resume(request):
     else:
         form = ResumeUploadForm()
     return render(request, 'job/upload_resume.html', {'form': form})
+
+
+def candidate_profile(request):
+    user = request.user
+    profile, created = CandidateProfile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+        form = CandidateProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('candidate_profile')
+    else:
+        form = CandidateProfileForm(instance=profile)
+
+    context = {
+        'form': form,
+        'profile': profile
+    }
+    return render(request, 'profiles/candidate_profile.html', context)
+
+
+@login_required
+def view_candidate_profile(request):
+    user = request.user
+    profile, created = CandidateProfile.objects.get_or_create(user=user)
+
+    context = {
+        'profile': profile
+    }
+    return render(request, 'profiles/view_candidate_profile.html', context)
 
 
 def apply_job(request, job_id):

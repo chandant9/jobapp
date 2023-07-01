@@ -18,7 +18,8 @@ from django.urls import path, reverse_lazy
 from .views import job_list, logout_view, base_view, home, profile, \
     change_password, candidate_register, recruiter_register, \
     registration_success, role_selection_view, JobPostingWizardView, \
-    JobPostingErrorView, job_details, upload_resume, apply_job, CustomLoginView
+    JobPostingErrorView, job_details, upload_resume, apply_job, CustomLoginView, \
+    candidate_profile, view_candidate_profile
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 
@@ -50,5 +51,7 @@ urlpatterns = [
     path('job-details/<int:job_id>/', job_details, name='job_details'),
     path('job/application/<int:job_id>/', apply_job, name='apply_job'),
     path('job/resume-upload/', upload_resume, name='upload_resume'),
+    path('profile/', candidate_profile, name='candidate_profile'),
+    path('view-profile/', view_candidate_profile, name='view_candidate_profile'),
 
 ]

@@ -12,6 +12,12 @@
                 <li><a href="{% url 'home' %}">Home</a> </li>
                 {% if request.user.profile.role == 'recruiter' %}
                     <li><a href="{% url 'job_posting_wizard' step='company_details' %}">Post Jobs</a></li>
+                {% elif request.user.profile.role == 'candidate' %}
+                    {% if not request.resolver_match.view_name == 'view_candidate_profile' %}
+                        <li><a href="{% url 'view_candidate_profile' %}">Profile</a></li>
+                    {% elif request.resolver_match.view_name == 'view_candidate_profile' %}
+                        <li><a href="{% url 'candidate_profile' %}">Edit Profile</a></li>
+                    {% endif %}
                 {% endif %}
                 <li><a href="{% url 'logout' %}">Logout</a> </li>
             {% else %}

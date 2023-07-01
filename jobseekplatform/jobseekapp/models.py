@@ -111,7 +111,7 @@ class JobQuestion(models.Model):
 
 
 class Resume(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resumes')
     file = models.FileField(upload_to='resumes/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -131,9 +131,11 @@ class CandidateProfile(models.Model):
     education = models.CharField(max_length=255, blank=True)
     work_experience = models.TextField(blank=True)
     phone_num = models.CharField(max_length=20, blank=True)
+    resume = models.ForeignKey('Resume', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
+
 
 class Application(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Candidate Profile</h2>
+  <ul>
+    <li>Username: {{ profile.user.username }}</li>
+    <li>First Name: {{ profile.user.first_name }}</li>
+    <li>Last Name: {{ profile.user.last_name }}</li>
+    <li>Street Address: {{ profile.street_address }}</li>
+    <li>Unit/Apt Number: {{ profile.unit_apt_num }}</li>
+    <li>County/District: {{ profile.county_district }}</li>
+    <li>City: {{ profile.city }}</li>
+    <li>Province/State: {{ profile.province_state }}</li>
+    <li>ZIP/Postal Code: {{ profile.zip_postal_code }}</li>
+    <li>Country: {{ profile.country }}</li>
+    <li>Education: {{ profile.education }}</li>
+    <li>Work Experience: {{ profile.work_experience }}</li>
+    <li>Phone Number: {{ profile.phone_num }}</li>
+    <li>Resume: <a href="{{ profile.resume.file.url }}">{{ profile.resume.file.name }}</a></li>
+  </ul>
+  <a href="{% url 'candidate_profile' %}">Edit Profile</a>
+{% endblock %}
