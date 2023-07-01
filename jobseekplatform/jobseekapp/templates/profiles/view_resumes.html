@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>View Resumes</h2>
+  {% if resumes %}
+    <ul>
+      {% for resume in resumes %}
+        <li>
+          <a href="{{ resume.file.url }}">{{ resume.file.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No resumes uploaded.</p>
+  {% endif %}
+  <a href="{% url 'upload_resume' %}">Upload Resume</a>
+{% endblock %}

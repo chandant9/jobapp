@@ -18,6 +18,9 @@
                     {% elif request.resolver_match.view_name == 'view_candidate_profile' %}
                         <li><a href="{% url 'candidate_profile' %}">Edit Profile</a></li>
                     {% endif %}
+                    {% if not request.resolver_match.view_name == 'view_resumes' %}
+                        <li><a href="{% url 'view_resumes' %}">Resumes</a></li>
+                    {% endif %}
                 {% endif %}
                 <li><a href="{% url 'logout' %}">Logout</a> </li>
             {% else %}

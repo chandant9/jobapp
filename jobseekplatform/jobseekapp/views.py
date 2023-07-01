@@ -306,6 +306,16 @@ def view_candidate_profile(request):
     return render(request, 'profiles/view_candidate_profile.html', context)
 
 
+@login_required
+def view_resumes(request):
+    profile = request.user.candidate_profile  # Get the candidate profile for the current user
+    resumes = profile.resumes.all()  # Retrieve all the resumes related to the candidate profile
+    context = {
+        'resumes': resumes
+    }
+    return render(request, 'profiles/view_resumes.html', context)
+
+
 def apply_job(request, job_id):
     job = Job.objects.get(id=job_id)
     user = request.user
