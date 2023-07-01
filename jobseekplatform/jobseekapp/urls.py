@@ -49,8 +49,8 @@ urlpatterns = [
     path('company/job_posting/error/', JobPostingErrorView.as_view(), name='job_posting_error'),
     path('job-details/<int:job_id>/', job_details, name='job_details'),
     path('job/application/<int:job_id>/', apply_job, name='apply_job'),
-    path('job/resume-upload/', upload_resume, name='upload_resume'),
     path('candidate-profile/', candidate_profile, name='candidate_profile'),
     path('view-profile/', view_candidate_profile, name='view_candidate_profile'),
     path('view-resumes/', view_resumes, name='view_resumes'),
+    path('job/resume-upload/', upload_resume, name='upload_resume'),
 ]

@@ -263,18 +263,6 @@ def job_details(request, job_id):
     return render(request, 'job_details.html', {'job': job})
 
 
-def upload_resume(request):
-    if request.method == 'POST':
-        form = ResumeUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            resume = Resume(user=request.user, file=form.cleaned_data['file'])
-            resume.save()
-            return redirect('resume_upload_success')
-    else:
-        form = ResumeUploadForm()
-    return render(request, 'job/upload_resume.html', {'form': form})
-
-
 @login_required
 def candidate_profile(request):
     user = request.user
@@ -314,6 +302,18 @@ def view_resumes(request):
         'resumes': resumes
     }
     return render(request, 'profiles/view_resumes.html', context)
+
+
+def upload_resume(request):
+    if request.method == 'POST':
+        form = ResumeUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            resume = Resume(user=request.user, file=form.cleaned_data['file'])
+            resume.save()
+            return redirect('resume_upload_success')
+    else:
+        form = ResumeUploadForm()
+    return render(request, 'profiles/upload_resume.html', {'form': form})
 
 
 def apply_job(request, job_id):
