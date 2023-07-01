@@ -112,11 +112,32 @@ class ResumeUploadForm(forms.ModelForm):
 
 
 class CandidateProfileForm(forms.ModelForm):
+    username = forms.CharField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+
     class Meta:
         model = CandidateProfile
-        fields = ['street_address', 'unit_apt_num', 'county_district', 'city',
+        fields = ['username', 'first_name', 'last_name', 'street_address', 'unit_apt_num', 'county_district', 'city',
                   'province_state', 'zip_postal_code', 'country', 'education',
                   'work_experience', 'phone_num', 'resume']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].initial = self.instance.user.username
+        self.fields['first_name'].initial = self.instance.user.first_name
+        self.fields['last_name'].initial = self.instance.user.last_name
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        user = profile.user
+        user.username = self.cleaned_data['username']
+        user.first_name = self.cleaned_data['firs_name']
+        user.last_name = self.cleaned_data['last_name']
+        if commit:
+            profile.save()
+            user.save()
+        return profile
 
 
 class JobApplicationForm(forms.ModelForm):

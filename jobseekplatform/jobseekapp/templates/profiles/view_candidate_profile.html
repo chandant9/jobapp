@@ -18,5 +18,4 @@
     <li>Phone Number: {{ profile.phone_num }}</li>
     <li>Resume: <a href="{{ profile.resume.file.url }}">{{ profile.resume.file.name }}</a></li>
   </ul>
-  <a href="{% url 'candidate_profile' %}">Edit Profile</a>
 {% endblock %}

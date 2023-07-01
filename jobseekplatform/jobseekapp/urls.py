@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, reverse_lazy
-from .views import job_list, logout_view, base_view, home, profile, \
+from .views import job_list, logout_view, base_view, home, \
     change_password, candidate_register, recruiter_register, \
     registration_success, role_selection_view, JobPostingWizardView, \
     JobPostingErrorView, job_details, upload_resume, apply_job, CustomLoginView, \
@@ -43,7 +43,6 @@ urlpatterns = [
     path('reset/<uid64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     # for profile and change password views path
-    path('profile/', profile, name='profile'),
     path('change-password/', change_password, name='change_password'),
     path('job_posting/<step>/', JobPostingWizardView.as_view(url_name='job_posting_wizard'), name='job_posting_wizard'),
     # path('job_posting/success/', JobPostingSuccessView.as_view(), name='job_posting_success'),
@@ -51,7 +50,7 @@ urlpatterns = [
     path('job-details/<int:job_id>/', job_details, name='job_details'),
     path('job/application/<int:job_id>/', apply_job, name='apply_job'),
     path('job/resume-upload/', upload_resume, name='upload_resume'),
-    path('profile/', candidate_profile, name='candidate_profile'),
+    path('candidate-profile/', candidate_profile, name='candidate_profile'),
     path('view-profile/', view_candidate_profile, name='view_candidate_profile'),
 
 ]

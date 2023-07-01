@@ -192,17 +192,17 @@ def base_view(request):
     return render(request, 'home.html')
 
 
-@login_required
-def profile(request):
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('profile')
-    else:
-        form = ProfileForm(instance=request.user)
-
-    return render(request, 'profile.html', {'form': form})
+# @login_required
+# def profile(request):
+#     if request.method == 'POST':
+#         form = ProfileForm(request.POST, instance=request.user)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('profile')
+#     else:
+#         form = ProfileForm(instance=request.user)
+#
+#     return render(request, 'profile.html', {'form': form})
 
 
 @login_required
@@ -275,6 +275,7 @@ def upload_resume(request):
     return render(request, 'job/upload_resume.html', {'form': form})
 
 
+@login_required
 def candidate_profile(request):
     user = request.user
     profile, created = CandidateProfile.objects.get_or_create(user=user)
@@ -283,7 +284,7 @@ def candidate_profile(request):
         form = CandidateProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            return redirect('candidate_profile')
+            return redirect('view_candidate_profile')
     else:
         form = CandidateProfileForm(instance=profile)
 
