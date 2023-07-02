@@ -19,11 +19,14 @@
     <li>{{ form.work_experience.label_tag }} {{ form.work_experience }}</li>
     <li>{{ form.phone_num.label_tag }} {{ form.phone_num }}</li>
 
-    {% if profile.resume %}
-      <p>Existing Resume: <a href="{{ profile.resume.file.url }}">{{ profile.resume.file.name }}</a></p>
-    {% endif %}
-    <label for="id_resume">Upload New Resume:</label>
-    <input type="file" name="resume" id="id_resume">
+      {% if latest_resume %}
+        <li>Existing Resume: <a href="{{ latest_resume.file.url }}">{{ latest_resume.file.name }}</a></li>
+      {% endif %}
+      <li>
+        <label for="id_resume">Upload New Resume:</label>
+        <input type="file" name="resume" id="id_resume">
+      </li>
+
     </ul>
     <button type="submit" class="btn btn-primary">Update Profile</button>
   </form>

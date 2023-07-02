@@ -105,6 +105,7 @@ class ResumeUploadForm(forms.ModelForm):
 
             # Check file type
             file_extension = file.name.split('.')[-1].lower()
+            print(file_extension)
             if file_extension not in ALLOWED_FILE_TYPES:
                 raise forms.ValidationError('Invalid file type. Only PDF, DOC, and DOCX files are allowed.')
 
@@ -121,7 +122,7 @@ class CandidateProfileForm(forms.ModelForm):
         model = CandidateProfile
         fields = ['username', 'first_name', 'last_name', 'street_address', 'unit_apt_num', 'county_district', 'city',
                   'province_state', 'zip_postal_code', 'country', 'education',
-                  'work_experience', 'phone_num']
+                  'work_experience', 'phone_num', 'resume']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -30,6 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
 from django.forms import modelformset_factory
+from django.db.models import Max
 
 
 
@@ -287,9 +288,14 @@ def candidate_profile(request):
 def view_candidate_profile(request):
     user = request.user
     profile, created = CandidateProfile.objects.get_or_create(user=user)
+    latest_resume = profile.resumes.latest('uploaded_at') if profile.resumes.exists() else None
+
+    form = CandidateProfileForm(instance=profile)
 
     context = {
-        'profile': profile
+        'profile': profile,
+        'latest_resume': latest_resume,
+        'form': form
     }
     return render(request, 'profiles/view_candidate_profile.html', context)
 
@@ -298,8 +304,20 @@ def view_candidate_profile(request):
 def view_resumes(request):
     profile = request.user.candidate_profile  # Get the candidate profile for the current user
     resumes = profile.resumes.all()  # Retrieve all the resumes related to the candidate profile
+
+    if request.method == 'POST':
+        form = ResumeUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            resume = form.save(commit=False)
+            resume.profile = profile
+            resume.save()
+            return redirect('view_resumes')
+    else:
+        form = ResumeUploadForm()
+
     context = {
-        'resumes': resumes
+        'resumes': resumes,
+        'form': form
     }
     return render(request, 'profiles/view_resumes.html', context)
 

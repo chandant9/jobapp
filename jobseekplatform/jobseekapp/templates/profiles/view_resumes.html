@@ -13,5 +13,9 @@
   {% else %}
     <p>No resumes uploaded.</p>
   {% endif %}
-  <a href="{% url 'upload_resume' %}">Upload Resume</a>
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Upload</button>
+  </form>
 {% endblock %}

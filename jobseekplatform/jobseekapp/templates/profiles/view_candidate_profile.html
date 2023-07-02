@@ -16,6 +16,12 @@
     <li>Education: {{ profile.education }}</li>
     <li>Work Experience: {{ profile.work_experience }}</li>
     <li>Phone Number: {{ profile.phone_num }}</li>
-    <li>Resume: <a href="{{ profile.resume.file.url }}">{{ profile.resume.file.name }}</a></li>
+    <li>Resume:
+      {% if latest_resume %}
+          <a href="{{ latest_resume.file.url }}">{{ latest_resume.file.name }}</a>
+      {% else %}
+        No resume found.
+      {% endif %}
+    </li>
   </ul>
 {% endblock %}

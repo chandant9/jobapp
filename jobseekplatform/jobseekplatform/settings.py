@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 # Defined for resume file types
 MAX_RESUME_FILE_SIZE = 10 * 1024 * 1024  # 10MB (adjust the value as needed)
-ALLOWED_RESUME_FILE_TYPES = ['.pdf', '.doc', '.docx']
+ALLOWED_RESUME_FILE_TYPES = ['pdf', 'doc', 'docx']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
