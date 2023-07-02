@@ -92,9 +92,11 @@ class JobSearchForm(forms.Form):
 
 
 class ResumeUploadForm(forms.ModelForm):
+    name = forms.CharField(max_length=100, required=True)
+
     class Meta:
         model = Resume
-        fields = ['file']
+        fields = ['name', 'file']
 
     def clean_file(self):
         file = self.cleaned_data.get('file')

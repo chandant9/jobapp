@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
 from django.forms import modelformset_factory
-from django.db.models import Max
+import os
 
 
 
@@ -303,7 +303,7 @@ def view_candidate_profile(request):
 @login_required
 def view_resumes(request):
     profile = request.user.candidate_profile  # Get the candidate profile for the current user
-    resumes = profile.resumes.all()  # Retrieve all the resumes related to the candidate profile
+    resumes = profile.resumes.order_by('-uploaded_at')  # Sort resumes by uploaded_at in descending order
 
     if request.method == 'POST':
         form = ResumeUploadForm(request.POST, request.FILES)
@@ -320,19 +320,6 @@ def view_resumes(request):
         'form': form
     }
     return render(request, 'profiles/view_resumes.html', context)
-
-
-def upload_resume(request):
-    if request.method == 'POST':
-        form = ResumeUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            resume = form.save(commit=False)
-            resume.user = request.user
-            resume.save()
-            return redirect('resume_upload_success')
-    else:
-        form = ResumeUploadForm()
-    return render(request, 'profiles/upload_resume.html', {'form': form})
 
 
 def apply_job(request, job_id):
