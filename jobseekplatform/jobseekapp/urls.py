@@ -19,7 +19,7 @@ from .views import job_list, logout_view, base_view, home, \
     change_password, candidate_register, recruiter_register, \
     registration_success, role_selection_view, JobPostingWizardView, \
     JobPostingErrorView, job_details, apply_job, CustomLoginView, \
-    candidate_profile, view_candidate_profile, view_resumes, delete_resume
+    candidate_profile, view_candidate_profile, view_resumes, delete_resume, applied_jobs, withdraw_application
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 
@@ -53,4 +53,6 @@ urlpatterns = [
     path('view-profile/', view_candidate_profile, name='view_candidate_profile'),
     path('view-resumes/', view_resumes, name='view_resumes'),
     path('delete-resume/<int:resume_id>/', delete_resume, name='delete_resume'),
+    path('jobs-applied/', applied_jobs, name='applied_jobs'),
+    path('application/<int:application_id>/withdraw/', withdraw_application, name='withdraw_application'),
 ]

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Applied Jobs</h1>
+{% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% if applications %}
+    <ul>
+        {% for application in applications %}
+            <li>
+                <h2>{{ application.job.title }}</h2>
+                <p>Application Date: {{ application.applied_at }}</p>
+                <p>Status: {{ application.status }}</p>
+                <a href="{% url 'withdraw_application' application.id %}">Withdraw Application</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No jobs applied yet.</p>
+{% endif %}
+{% endblock %}

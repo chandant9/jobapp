@@ -204,14 +204,6 @@ class JobApplicationForm(forms.ModelForm):
             candidate_profile = CandidateProfile.objects.get(user=self.user)
             resume = Resume.objects.create(profile=candidate_profile, file=new_resume)
 
-            # # Set the resume fields based on the uploaded file
-            # resume.name = new_resume.name
-            # resume.uploaded_at = datetime.datetime.now()
-            #
-            # # Set the file content
-            # resume.file.save(new_resume.name, ContentFile(new_resume.read()))
-            # resume.save()
-
             job_application.resume = resume
 
         if commit:

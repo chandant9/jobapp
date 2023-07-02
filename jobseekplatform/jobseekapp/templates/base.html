@@ -21,6 +21,9 @@
                     {% if not request.resolver_match.view_name == 'view_resumes' %}
                         <li><a href="{% url 'view_resumes' %}">Resumes</a></li>
                     {% endif %}
+                    {% if not request.resolver_match.view_name == 'applied_jobs' %}
+                        <li><a href="{% url 'applied_jobs' %}">Jobs Applied</a></li>
+                    {% endif %}
                 {% endif %}
                 <li><a href="{% url 'logout' %}">Logout</a> </li>
             {% else %}

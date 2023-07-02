@@ -153,6 +153,13 @@ class Resume(models.Model):
 
 
 class Application(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('withdrawn', 'Withdrawn'),
+    )
+
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)
     applied_at = models.DateTimeField(auto_now_add=True)
@@ -162,6 +169,7 @@ class Application(models.Model):
     last_name = models.CharField(max_length=100, default='', blank=True)
     email = models.EmailField(default='', blank=True)
     phone_number = models.CharField(max_length=20, default='', blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
         return f"Application for {self.job.title} by {self.applicant.username}"

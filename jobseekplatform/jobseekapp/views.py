@@ -1,6 +1,6 @@
 from django.shortcuts import render
 # For API 1)
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from .models import Job, Resume, Application, Profile, Company, RecruiterGroup, JobQuestion, \
     CandidateAnswer, CandidateGroup, CandidateProfile
@@ -339,6 +339,10 @@ def apply_job(request, job_id):
     job = Job.objects.get(id=job_id)
     user = request.user
 
+    if Application.objects.filter(job=job, applicant=user).exists():
+        messages.warning(request, 'You have already applied for this job.')
+        return redirect('applied_jobs')
+
     # Retrieve the user's candidate profile
     candidate_profile, created = CandidateProfile.objects.get_or_create(user=user)
 
@@ -359,7 +363,7 @@ def apply_job(request, job_id):
                 CandidateAnswer.objects.create(application=job_application, question=question, answer=answer)
 
             messages.success(request, 'Job application submitted successfully.')
-            return redirect('home')
+            return redirect('applied_jobs')
     else:
         form = JobApplicationForm(job=job, user=user)
 
@@ -372,6 +376,28 @@ def apply_job(request, job_id):
         'user_resumes': user_resumes
     }
     return render(request, 'job/apply_job.html', context)
+
+
+def applied_jobs(request):
+    user = request.user
+    applications = Application.objects.filter(applicant=user)
+    return render(request, 'job/applied_jobs.html', {'applications': applications})
+
+
+def withdraw_application(request, application_id):
+    application = Application.objects.get(id=application_id)
+
+    if application.applicant != request.user:
+        return HttpResponseForbidden()
+
+    if application.status == 'withdrawn':
+        messages.warning(request, 'This application has already been withdrawn.')
+    else:
+        application.status = 'withdrawn'
+        application.save()
+        messages.success(request, 'Application withdrawn successfully.')
+
+    return redirect('applied_jobs')
 
 
 # Job Posting view
