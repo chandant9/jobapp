@@ -30,8 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
 from django.forms import modelformset_factory
-import os
-
+from django.core.exceptions import PermissionDenied
 
 
 # defined for JobPostingWizardView
@@ -320,6 +319,20 @@ def view_resumes(request):
         'form': form
     }
     return render(request, 'profiles/view_resumes.html', context)
+
+
+@login_required
+def delete_resume(request, resume_id):
+    resume = get_object_or_404(Resume, id=resume_id)
+
+    # Check if the resume belongs to the current user
+    if resume.profile.user != request.user:
+        raise PermissionDenied
+
+    # Delete the resume
+    resume.delete()
+
+    return redirect('view_resumes')
 
 
 def apply_job(request, job_id):

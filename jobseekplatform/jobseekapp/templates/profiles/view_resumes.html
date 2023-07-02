@@ -22,7 +22,10 @@
           <td>
             <a href="{{ resume.file.url }}">Download</a>
             <!-- Add delete button and form for deleting the resume -->
-
+            <form action="{% url 'delete_resume' resume.id %}" method="post">
+              {% csrf_token %}
+              <button type="submit">Delete</button>
+            </form>
           </td>
         </tr>
       {% endfor %}
