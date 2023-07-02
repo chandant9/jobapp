@@ -380,7 +380,7 @@ def apply_job(request, job_id):
 
 def applied_jobs(request):
     user = request.user
-    applications = Application.objects.filter(applicant=user)
+    applications = Application.objects.filter(applicant=user).order_by('-applied_at')
     return render(request, 'job/applied_jobs.html', {'applications': applications})
 
 
