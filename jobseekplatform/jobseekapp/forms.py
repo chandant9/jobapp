@@ -12,6 +12,7 @@ import pycountry
 from multiselectfield import MultiSelectFormField
 from django.conf import settings
 from django.forms import formset_factory
+import os
 
 
 # defined for Resume validation check in JobApplicationForm class

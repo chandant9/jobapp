@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
+import os
 
 
 # Create your models here.
@@ -132,6 +133,19 @@ class Resume(models.Model):
     name = models.CharField(max_length=100, null=True)
     file = models.FileField(upload_to='resumes/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # Generate a unique filename if it's a new instance
+            filename = self.file.name
+            basename, ext = os.path.splitext(filename)
+            counter = 1
+            while Resume.objects.filter(file__endswith=filename).exists():
+                filename = f"{basename}_{counter}{ext}"
+                counter += 1
+            self.file.name = filename
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Resume for {self.file.name}"
