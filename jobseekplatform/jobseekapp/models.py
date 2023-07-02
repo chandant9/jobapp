@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 import os
+from django.utils.text import slugify
 
 
 # Create your models here.
@@ -128,23 +129,23 @@ class CandidateProfile(models.Model):
         return self.user.username
 
 
+def resume_file_path(instance, filename):
+    base_filename, file_extension = os.path.splitext(filename)
+    unique_filename = f"{slugify(base_filename)}{file_extension}"
+    return f"resumes/{unique_filename}"
+
+
 class Resume(models.Model):
     profile = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, related_name='resumes', null=True)
     name = models.CharField(max_length=100, null=True)
-    file = models.FileField(upload_to='resumes/')
+    file = models.FileField(upload_to=resume_file_path)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            # Generate a unique filename if it's a new instance
-            filename = self.file.name
-            basename, ext = os.path.splitext(filename)
-            counter = 1
-            while Resume.objects.filter(file__endswith=filename).exists():
-                filename = f"{basename}_{counter}{ext}"
-                counter += 1
-            self.file.name = filename
-
+        if not self.id:
+            base_filename, file_extension = os.path.splitext(self.file.name)
+            unique_filename = f"{slugify(base_filename)}{file_extension}"
+            self.file.name = resume_file_path(self, unique_filename)
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -340,7 +340,7 @@ def apply_job(request, job_id):
     user = request.user
 
     # Retrieve the user's candidate profile
-    candidate_profile = CandidateProfile.objects.get(user=user)
+    candidate_profile, created = CandidateProfile.objects.get_or_create(user=user)
 
     # Retrieve the user's uploaded resumes
     user_resumes = candidate_profile.resumes.all()
@@ -351,7 +351,7 @@ def apply_job(request, job_id):
         if form.is_valid():
             job_application = form.save(commit=False)
             job_application.job = job
-            job_application.applicant = request.user
+            job_application.applicant = user
             job_application.save()
 
             for question in job.questions.all():
@@ -362,6 +362,9 @@ def apply_job(request, job_id):
             return redirect('home')
     else:
         form = JobApplicationForm(job=job, user=user)
+
+    form.initial['job'] = job  # Set the initial value for the job field
+    form.user = user
 
     context = {
         'form': form,

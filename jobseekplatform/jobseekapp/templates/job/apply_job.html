@@ -5,17 +5,17 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in form.visible_fields %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
+      {% endif %}
       <div class="form-group">
         {{ field.label_tag }}
         {{ field }}
 
-        {% if field.name == 'existing_resume' %}
-          {% if field.field.queryset.exists %}
-            <p>Select an Existing Resume:</p>
-          {% else %}
-            <p>No existing resumes found.</p>
-          {% endif %}
-        {% endif %}
       </div>
     {% endfor %}
     <button type="submit" class="btn btn-primary">Apply</button>

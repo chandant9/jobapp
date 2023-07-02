@@ -12,7 +12,8 @@ import pycountry
 from multiselectfield import MultiSelectFormField
 from django.conf import settings
 from django.forms import formset_factory
-import os
+import os, datetime
+from django.core.files.base import ContentFile
 
 
 # defined for Resume validation check in JobApplicationForm class
@@ -161,6 +162,8 @@ class JobApplicationForm(forms.ModelForm):
         user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
 
+        self.user = user
+
         candidate_profile = CandidateProfile.objects.get(user=user)
         self.fields['existing_resume'].queryset = candidate_profile.resumes.all()
 
@@ -189,6 +192,32 @@ class JobApplicationForm(forms.ModelForm):
         self.fields['last_name'].initial = user.last_name
         self.fields['email'].initial = user.email
         self.fields['phone_number'].initial = candidate_profile.phone_num
+
+    def save(self, commit=True):
+        job_application = super().save(commit=False)
+        existing_resume = self.cleaned_data.get('existing_resume')
+        new_resume = self.cleaned_data.get('new_resume')
+
+        if existing_resume:
+            job_application.resume = existing_resume
+        elif new_resume:
+            candidate_profile = CandidateProfile.objects.get(user=self.user)
+            resume = Resume.objects.create(profile=candidate_profile, file=new_resume)
+
+            # # Set the resume fields based on the uploaded file
+            # resume.name = new_resume.name
+            # resume.uploaded_at = datetime.datetime.now()
+            #
+            # # Set the file content
+            # resume.file.save(new_resume.name, ContentFile(new_resume.read()))
+            # resume.save()
+
+            job_application.resume = resume
+
+        if commit:
+            job_application.save()
+
+        return job_application
 
     class Meta:
         model = Application
