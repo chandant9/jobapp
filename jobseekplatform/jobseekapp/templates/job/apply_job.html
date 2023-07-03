@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Apply for Job</h2>
-  <form method="post" enctype="multipart/form-data">
+  <h2>Applying for position: {{ job.title }}</h2>
+  <h3>Company: {{ job.company }}</h3>
+
+  <form id="jobApplicationForm" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in form.visible_fields %}
       {% if form.non_field_errors %}
@@ -14,10 +16,29 @@
       {% endif %}
       <div class="form-group">
         {{ field.label_tag }}
+        {% if field.name == 'resume_file' %}
+          <input type="hidden" id="selectedResumeFile" name="selected_resume_file" value="">
+          <button id="attachResumeBtn" type="button">Attach</button>
+        {% endif %}
         {{ field }}
-
       </div>
     {% endfor %}
     <button type="submit" class="btn btn-primary">Apply</button>
   </form>
+
+  <script>
+  // Attach resume button click event handler
+  document.getElementById('attachResumeBtn').addEventListener('click', function() {
+    // Open the view resumes page in a new window
+    var viewResumesWindow = window.open('{% url 'view_resumes' %}?from_job_application=1', '_blank');
+
+    // Message event listener to receive the selected resume file from the view resumes page
+    window.addEventListener('message', function(event) {
+      if (event.origin === window.location.origin && event.source === viewResumesWindow) {
+        var selectedResumeUrl = event.data.selectedResumeUrl;
+        document.getElementById('selectedResumeFile').value = selectedResumeUrl;
+      }
+    });
+  });
+  </script>
 {% endblock %}

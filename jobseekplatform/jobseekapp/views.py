@@ -314,9 +314,13 @@ def view_resumes(request):
     else:
         form = ResumeUploadForm()
 
+    # Check if the query parameter 'from_job_application' is present
+    from_job_application = bool(request.GET.get('from_job_application'))
+
     context = {
         'resumes': resumes,
-        'form': form
+        'form': form,
+        'from_job_application': from_job_application
     }
     return render(request, 'profiles/view_resumes.html', context)
 
@@ -350,12 +354,20 @@ def apply_job(request, job_id):
     user_resumes = candidate_profile.resumes.all()
 
     if request.method == 'POST':
+        if 'attach-resume' in request.POST:
+            return redirect(reverse('view_resumes') + '?from_job_application=1')
+
         form = JobApplicationForm(request.POST, request.FILES, job=job, user=user)
 
         if form.is_valid():
             job_application = form.save(commit=False)
             job_application.job = job
             job_application.applicant = user
+            resume_file = form.cleaned_data.get('resume_file')
+
+            if resume_file:
+                job_application.resume_file.save(resume_file.name, resume_file)
+
             job_application.save()
 
             for question in job.questions.all():
@@ -368,14 +380,16 @@ def apply_job(request, job_id):
         form = JobApplicationForm(job=job, user=user)
 
     form.initial['job'] = job  # Set the initial value for the job field
-    form.user = user
+    form.fields['resume_file'].queryset = user_resumes  # Set the queryset for the resume_file field
 
     context = {
         'form': form,
         'job': job,
-        'user_resumes': user_resumes
+        'user_resumes': user_resumes,
+        'from_job_application': True
     }
     return render(request, 'job/apply_job.html', context)
+
 
 
 def applied_jobs(request):

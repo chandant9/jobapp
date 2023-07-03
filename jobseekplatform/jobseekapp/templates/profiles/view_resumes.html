@@ -4,38 +4,56 @@
 
 {% block content %}
   <h2>Resumes</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Resume Name</th>
-        <th>File Name</th>
-        <th>Uploaded Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for resume in resumes %}
+  <form id="resumeSelectionForm">
+    <table>
+      <thead>
         <tr>
-          <td>{{ resume.name }}</td>
-          <td>{{ resume.file.name|get_filename }}</td>
-          <td>{{ resume.uploaded_at }}</td>
-          <td>
-            <a href="{{ resume.file.url }}">Download</a>
-            <!-- Add delete button and form for deleting the resume -->
-            <form action="{% url 'delete_resume' resume.id %}" method="post">
-              {% csrf_token %}
-              <button type="submit">Delete</button>
-            </form>
-          </td>
+          <th>Select</th>
+          <th>Resume Name</th>
+          <th>File Name</th>
+          <th>Uploaded Date</th>
+          <th>Actions</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for resume in resumes %}
+          <tr>
+            {% if from_job_application %}
+              <td>
+                <input type="radio" name="selected_resume" value="{{ resume.file.url }}">
+              </td>
+            {% endif %}
+            <td>{{ resume.name }}</td>
+            <td>{{ resume.file.name|get_filename }}</td>
+            <td>{{ resume.uploaded_at }}</td>
+            <td>
+              <a href="{{ resume.file.url }}" download>Download</a>
+              <form method="post" action="{% url 'delete_resume' resume.id %}">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-  <h2>Upload Resume</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit">Upload</button>
+    {% if from_job_application %}
+      <button id="selectResumeBtn">Select</button>
+    {% endif %}
   </form>
+
+  <script>
+  // Select button click event handler
+  document.getElementById('selectResumeBtn').addEventListener('click', function() {
+    // Get the selected resume URL
+    var selectedResumeUrl = document.querySelector('input[name="selected_resume"]:checked').value;
+
+    // Send the selected resume URL to the parent window
+    window.opener.postMessage({
+      selectedResumeUrl: selectedResumeUrl
+    }, '*');
+    window.close();
+  });
+  </script>
 {% endblock %}

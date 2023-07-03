@@ -169,6 +169,7 @@ class Application(models.Model):
     email = models.EmailField(default='', blank=True)
     phone_number = models.CharField(max_length=20, default='', blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    resume_file = models.FileField(upload_to='applied_resumes', null=True, blank=True)
 
     def __str__(self):
         return f"Application for {self.job.title} by {self.applicant.username}"
