@@ -163,7 +163,6 @@ class Application(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)
     applied_at = models.DateTimeField(auto_now_add=True)
-    resume = models.ForeignKey(Resume, on_delete=models.CASCADE)
     cover_letter = models.TextField(null=True, blank=True)
     first_name = models.CharField(max_length=100, default='', blank=True)
     last_name = models.CharField(max_length=100, default='', blank=True)
