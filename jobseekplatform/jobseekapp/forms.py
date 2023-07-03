@@ -163,7 +163,9 @@ class JobApplicationForm(forms.ModelForm):
         self.user = user
 
         candidate_profile = CandidateProfile.objects.get(user=user)
-        self.fields['resume_file'].queryset = candidate_profile.resumes.all()
+        last_resume = candidate_profile.resumes.last()
+        if last_resume:
+            self.fields['resume_file'].initial = last_resume.file.url
 
         job_questions = job.questions.all()
 
@@ -199,7 +201,7 @@ class JobApplicationForm(forms.ModelForm):
             candidate_profile = CandidateProfile.objects.get(user=self.user)
             resume = Resume.objects.create(profile=candidate_profile, file=resume_file)
 
-            job_application.resume = resume
+            job_application.resume_file = resume.file
 
         if commit:
             job_application.save()

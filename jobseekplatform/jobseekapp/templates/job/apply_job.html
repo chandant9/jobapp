@@ -17,28 +17,28 @@
       <div class="form-group">
         {{ field.label_tag }}
         {% if field.name == 'resume_file' %}
-          <input type="hidden" id="selectedResumeFile" name="selected_resume_file" value="">
-          <button id="attachResumeBtn" type="button">Attach</button>
+          {% if form.resume_file.value %}
+            <p>Uploaded Resume: {{ form.resume_file.value }}</p>
+          {% endif %}
+          {{ form.resume_file }}
+        {% else %}
+          {{ field }}
         {% endif %}
-        {{ field }}
       </div>
     {% endfor %}
     <button type="submit" class="btn btn-primary">Apply</button>
   </form>
 
   <script>
-  // Attach resume button click event handler
-  document.getElementById('attachResumeBtn').addEventListener('click', function() {
-    // Open the view resumes page in a new window
-    var viewResumesWindow = window.open('{% url 'view_resumes' %}?from_job_application=1', '_blank');
+  // Choose resume button click event handler
+  document.getElementById('chooseResumeBtnText').addEventListener('click', function() {
+    document.getElementById('chooseResumeBtn').click();
+  });
 
-    // Message event listener to receive the selected resume file from the view resumes page
-    window.addEventListener('message', function(event) {
-      if (event.origin === window.location.origin && event.source === viewResumesWindow) {
-        var selectedResumeUrl = event.data.selectedResumeUrl;
-        document.getElementById('selectedResumeFile').value = selectedResumeUrl;
-      }
-    });
+  // Resume file field change event handler
+  document.getElementById('chooseResumeBtn').addEventListener('change', function() {
+    var selectedResumeFile = document.getElementById('chooseResumeBtn').files[0];
+    document.getElementById('id_resume_file').value = selectedResumeFile.name;
   });
   </script>
 {% endblock %}

@@ -339,6 +339,23 @@ def delete_resume(request, resume_id):
     return redirect('view_resumes')
 
 
+@login_required
+def rename_resume(request, resume_id):
+    resume = get_object_or_404(Resume, id=resume_id)
+
+    # Check if the resume belongs to the current user
+    if resume.profile.user != request.user:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        new_name = request.POST.get('new_name')
+        resume.name = new_name
+        resume.save()
+        return redirect('view_resumes')
+
+    return redirect('view_resumes')
+
+
 def apply_job(request, job_id):
     job = Job.objects.get(id=job_id)
     user = request.user
@@ -365,8 +382,7 @@ def apply_job(request, job_id):
             job_application.applicant = user
             resume_file = form.cleaned_data.get('resume_file')
 
-            if resume_file:
-                job_application.resume_file.save(resume_file.name, resume_file)
+            job_application.resume_file.save(resume_file)
 
             job_application.save()
 
@@ -389,7 +405,6 @@ def apply_job(request, job_id):
         'from_job_application': True
     }
     return render(request, 'job/apply_job.html', context)
-
 
 
 def applied_jobs(request):
