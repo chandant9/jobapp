@@ -31,6 +31,9 @@ from django.http import HttpResponse
 from django.contrib.auth.views import LoginView
 from django.forms import modelformset_factory
 from django.core.exceptions import PermissionDenied
+from django.core.files import File
+import requests
+from urllib.parse import urlparse, urlunparse
 
 
 # defined for JobPostingWizardView
@@ -384,7 +387,7 @@ def apply_job(request, job_id):
             job_application.applicant = user
             resume_file = form.cleaned_data.get('resume_file')
 
-            job_application.resume_file.save(resume_file)
+            job_application.resume_file = resume_file
 
             job_application.save()
 

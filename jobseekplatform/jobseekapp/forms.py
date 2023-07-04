@@ -223,7 +223,7 @@ class JobApplicationForm(forms.ModelForm):
             raise forms.ValidationError('Please select an existing resume or upload a new resume.')
 
         # Check file size
-        if resume_file:
+        if resume_file and hasattr(resume_file, 'size'):
             if resume_file.size > MAX_FILE_SIZE:
                 raise forms.ValidationError(f'File size exceeds the maximum limit of {MAX_FILE_SIZE / (1024 * 1024)}MB.')
 

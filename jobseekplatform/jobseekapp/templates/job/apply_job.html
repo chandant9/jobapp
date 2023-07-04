@@ -56,7 +56,7 @@
       resumePreviewBox.firstChild.remove();
     }
 
-    if (selectedResumeFile.name.endsWith('.pdf')) {
+    if (selectedResumeFile.name.toLowerCase().endsWith('.pdf')) {
       var newResumePreview = document.createElement('embed');
       newResumePreview.src = URL.createObjectURL(selectedResumeFile);
       newResumePreview.type = 'application/pdf';
@@ -64,9 +64,9 @@
       newResumePreview.height = '600px';
 
       resumePreviewBox.appendChild(newResumePreview);
-    } else if (selectedResumeFile.name.endsWith('.docx')) {
+    } else if (selectedResumeFile.name.toLowerCase().endsWith('.docx')) {
       var newResumePreview = document.createElement('iframe');
-      newResumePreview.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + URL.createObjectURL(selectedResumeFile);
+      newResumePreview.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(URL.createObjectURL(selectedResumeFile));
       newResumePreview.width = '100%';
       newResumePreview.height = '600px';
       newResumePreview.frameBorder = '0';
