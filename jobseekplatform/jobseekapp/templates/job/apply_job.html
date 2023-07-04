@@ -18,9 +18,21 @@
         {{ field.label_tag }}
         {% if field.name == 'resume_file' %}
           {% if form.resume_file.value %}
-            <p>Uploaded Resume: {{ form.resume_file.value }}</p>
+            <div id="resumePreviewBox">
+              {% if form.resume_file.value.name.lower|slice:"-4:" == ".pdf" %}
+                <embed src="{{ form.resume_file.value.url }}" type="application/pdf" width="100%" height="600px">
+              {% elif form.resume_file.value.name.lower|slice:"-5:" == ".docx" %}
+                <iframe src="https://view.officeapps.live.com/op/embed.aspx?src={{ form.resume_file.value.url }}" width="100%" height="600px" frameborder="0">This browser does not support viewing Docx files. Please download the file to view it.</iframe>
+              {% else %}
+                <p>{{ form.resume_file.value }}</p>
+              {% endif %}
+            </div>
+            <br>
           {% endif %}
-          {{ form.resume_file }}
+          <div>
+            <input type="file" name="{{ field.name }}" id="{{ field.auto_id }}" class="form-control-file">
+            <small id="chooseResumeBtnText" class="form-text text-muted">Click here to choose a new resume</small>
+          </div>
         {% else %}
           {{ field }}
         {% endif %}
@@ -32,13 +44,41 @@
   <script>
   // Choose resume button click event handler
   document.getElementById('chooseResumeBtnText').addEventListener('click', function() {
-    document.getElementById('chooseResumeBtn').click();
+    document.getElementById('{{ form.resume_file.auto_id }}').click();
   });
 
   // Resume file field change event handler
-  document.getElementById('chooseResumeBtn').addEventListener('change', function() {
-    var selectedResumeFile = document.getElementById('chooseResumeBtn').files[0];
-    document.getElementById('id_resume_file').value = selectedResumeFile.name;
+  document.getElementById('{{ form.resume_file.auto_id }}').addEventListener('change', function() {
+    var selectedResumeFile = document.getElementById('{{ form.resume_file.auto_id }}').files[0];
+    var resumePreviewBox = document.getElementById('resumePreviewBox');
+
+    while (resumePreviewBox.firstChild) {
+      resumePreviewBox.firstChild.remove();
+    }
+
+    if (selectedResumeFile.name.endsWith('.pdf')) {
+      var newResumePreview = document.createElement('embed');
+      newResumePreview.src = URL.createObjectURL(selectedResumeFile);
+      newResumePreview.type = 'application/pdf';
+      newResumePreview.width = '100%';
+      newResumePreview.height = '600px';
+
+      resumePreviewBox.appendChild(newResumePreview);
+    } else if (selectedResumeFile.name.endsWith('.docx')) {
+      var newResumePreview = document.createElement('iframe');
+      newResumePreview.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + URL.createObjectURL(selectedResumeFile);
+      newResumePreview.width = '100%';
+      newResumePreview.height = '600px';
+      newResumePreview.frameBorder = '0';
+      newResumePreview.innerText = 'This browser does not support viewing Docx files. Please download the file to view it.';
+
+      resumePreviewBox.appendChild(newResumePreview);
+    } else {
+      var newResumePreview = document.createElement('p');
+      newResumePreview.innerText = selectedResumeFile.name;
+
+      resumePreviewBox.appendChild(newResumePreview);
+    }
   });
   </script>
 {% endblock %}
