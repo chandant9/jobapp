@@ -543,12 +543,19 @@ class JobPostingErrorView(TemplateView):
     template_name = 'company/job_posting_error.html'
 
 
-# To be implemented in the future
-# @login_required(login_url='login')
-# def view_application(request, application_id):
-#     # Retrieve the application
-#     application = Application.objects.get(id=application_id)
-#
-#     # Perform additional processing
-##
-#     return render(request, 'job/application_detail.html', context)
+# ******* API END POINT VIEWS FROM BELOW *******
+
+def home_view(request):
+    jobs = Job.objects.all()  # Fetch jobs from the database
+
+    # Create a list of job data
+    jobs_data = []
+    for job in jobs:
+        jobs_data.append({
+            'id': job.id,
+            'title': job.title,
+            # Add other relevant job fields as needed
+        })
+
+    # Return the jobs data as a JSON response
+    return JsonResponse({'jobs': jobs_data})
