@@ -369,6 +369,8 @@ def apply_job(request, job_id):
 
     # Retrieve the user's uploaded resumes
     user_resumes = candidate_profile.resumes.all()
+    # Retrieve the latest uploaded resume
+    latest_resume = Resume.objects.order_by('-uploaded_at').first()
 
     if request.method == 'POST':
         if 'attach-resume' in request.POST:
@@ -402,7 +404,8 @@ def apply_job(request, job_id):
         'form': form,
         'job': job,
         'user_resumes': user_resumes,
-        'from_job_application': True
+        'from_job_application': True,
+        'latest_resume': latest_resume
     }
     return render(request, 'job/apply_job.html', context)
 
