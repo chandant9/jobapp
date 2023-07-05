@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'countries_plus',
     'formtools',
     'crispy_forms',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

@@ -35,7 +35,9 @@ from django.core.files import File
 import requests
 from urllib.parse import urlparse, urlunparse
 
-
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import ApplicationSerializer
 
 
 # defined for JobPostingWizardView
