@@ -36,6 +36,8 @@ import requests
 from urllib.parse import urlparse, urlunparse
 
 
+
+
 # defined for JobPostingWizardView
 JOB_POSTING_FORMS = [
     ("company_details", CompanyDetailsForm),
@@ -559,3 +561,17 @@ def home_view(request):
 
     # Return the jobs data as a JSON response
     return JsonResponse({'jobs': jobs_data})
+
+
+@api_view(['GET'])
+def get_applied_jobs(request):
+    # Retrieve the currently signed-in user
+    user = request.user
+
+    # Retrieve the applied jobs for the user
+    applications = user.applications.all()
+
+    # Serialize the application data
+    serializer = ApplicationSerializer(applications, many=True)
+
+    return Response(serializer.data)
