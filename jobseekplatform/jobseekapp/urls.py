@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, reverse_lazy
-from .views import job_list, logout_view, base_view, home, \
+from .views import logout_view, base_view, home, \
     change_password, candidate_register, recruiter_register, \
     registration_success, role_selection_view, JobPostingWizardView, \
     JobPostingErrorView, job_details, apply_job, CustomLoginView, \
@@ -28,7 +28,7 @@ from .views import get_job_list
 
 
 urlpatterns = [
-    path('api/jobs/', job_list, name='job_list'),  # for api endpoints
+    # path('api/jobs/', job_list, name='job_list'),  # for api endpoints
     path('', base_view, name='base_view'),  # for base
     # path('cart.json', cart_json_view, name='cart_json'),
     path('home/', home, name='home'),  # for home

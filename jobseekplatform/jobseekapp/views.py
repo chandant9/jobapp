@@ -52,19 +52,6 @@ JOB_POSTING_FORMS = [
 # Create your views here.
 
 # 1) Setting up api endpoints for the platform
-@csrf_exempt
-def job_list(request):
-    if request.method == 'GET':
-        jobs = Job.objects.all()
-        job_data = [{'title': job.title, 'description': job.description} for job in jobs]
-        return JsonResponse({'jobs': job_data})
-
-    elif request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        job = Job.objects.create(title=title, description=description)
-        return JsonResponse({'message': 'Job created successfully'})
-
 
 # 2) User registration
 
@@ -549,27 +536,36 @@ class JobPostingErrorView(TemplateView):
 
 # ******* API END POINT VIEWS FROM BELOW *******
 
+@csrf_exempt
 def get_job_list(request):
     # Fetch the job list from the database or data source
-    jobs = Job.objects.all()
+    if request.method == 'GET':
+        jobs = Job.objects.all()
 
-    # Convert the job list to a serialized JSON response
-    job_list = []
-    for job in jobs:
-        job_list.append({
-            'id': job.id,
-            'title': job.title,
-            'job_loctype': job.job_loctype,
-            'company': job.company,
-            'country': job.country,
-            'salary': job.salary,
-            'job_type': job.job_type,
-            'description': job.description,
-            # Add other job properties as needed
-        })
+        # Convert the job list to a serialized JSON response
+        job_list = []
+        for job in jobs:
+            serialized_job = {
+                'id': job.id,
+                'title': job.title,
+                'job_loctype': job.job_loctype,
+                'company': job.company.name,
+                'country': job.country,
+                'salary': job.salary,
+                'job_type': job.job_type,
+                'description': job.description,
+                # Add other job properties as needed
+            }
+            job_list.append(serialized_job)
 
-    # Return the jobs data as a JSON response
-    return JsonResponse({'jobs': job_list})
+        # Return the jobs data as a JSON response
+        return JsonResponse({'jobs': job_list})
+
+    # elif request.method == 'POST':
+    #     title = request.POST.get('title')
+    #     description = request.POST.get('description')
+    #     job = Job.objects.create(title=title, description=description)
+    #     return JsonResponse({'message': 'Job created successfully'})
 
 
 @api_view(['GET'])
