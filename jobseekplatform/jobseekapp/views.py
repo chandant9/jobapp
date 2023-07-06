@@ -549,20 +549,27 @@ class JobPostingErrorView(TemplateView):
 
 # ******* API END POINT VIEWS FROM BELOW *******
 
-def home_view(request):
-    jobs = Job.objects.all()  # Fetch jobs from the database
+def get_job_list(request):
+    # Fetch the job list from the database or data source
+    jobs = Job.objects.all()
 
-    # Create a list of job data
-    jobs_data = []
+    # Convert the job list to a serialized JSON response
+    job_list = []
     for job in jobs:
-        jobs_data.append({
+        job_list.append({
             'id': job.id,
             'title': job.title,
-            # Add other relevant job fields as needed
+            'job_loctype': job.job_loctype,
+            'company': job.company,
+            'country': job.country,
+            'salary': job.salary,
+            'job_type': job.job_type,
+            'description': job.description,
+            # Add other job properties as needed
         })
 
     # Return the jobs data as a JSON response
-    return JsonResponse({'jobs': jobs_data})
+    return JsonResponse({'jobs': job_list})
 
 
 @api_view(['GET'])
