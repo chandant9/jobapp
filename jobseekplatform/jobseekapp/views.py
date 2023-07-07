@@ -571,13 +571,12 @@ def get_job_list(request):
 
 
 # FETCH JOB DETAILS
-def get_job_details(request, job_id):
+def get_job_details(request, unique_identifier):
     if request.method == 'GET':
         try:
-            job = get_object_or_404(Job, id=job_id)
+            job = get_object_or_404(Job, unique_identifier=unique_identifier)
             serializer = JobSerializer(job)
             job_details = serializer.data
-            job_details['id'] = quote(str(job_details['id']).encode('utf-8'))  # URL encode the job ID
             return JsonResponse(job_details)
         except Job.DoesNotExist:
             return JsonResponse({'error': 'Job not found'}, status=404)
