@@ -37,7 +37,8 @@ from urllib.parse import urlparse, urlunparse
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import ApplicationSerializer
+from .serializers import JobSerializer, ApplicationSerializer
+from urllib.parse import quote
 
 
 # defined for JobPostingWizardView
@@ -573,21 +574,10 @@ def get_job_list(request):
 def get_job_details(request, job_id):
     if request.method == 'GET':
         try:
-            job = Job.objects.get(id=job_id)
-            job_details = {
-                'id': job.id,
-                'title': job.title,
-                'company': job.company.name,
-                'employee_count': job.employee_count,
-                'country':  job.country,
-                'salary': job.salary,
-                'job_loctype': job.job_loctype,
-                'location': job.location,
-                'job_type': job.job_type,
-                'schedule': job.schedule,
-                'start_date': job.start_date,
-                'description': job.description,
-            }
+            job = get_object_or_404(Job, id=job_id)
+            serializer = JobSerializer(job)
+            job_details = serializer.data
+            job_details['id'] = quote(str(job_details['id']).encode('utf-8'))  # URL encode the job ID
             return JsonResponse(job_details)
         except Job.DoesNotExist:
             return JsonResponse({'error': 'Job not found'}, status=404)

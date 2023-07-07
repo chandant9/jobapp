@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Application
+from .models import Job, Application
+
+
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = ['id', 'title', 'company', 'employee_count', 'country', 'salary', 'job_loctype', 'location', 'job_type', 'schedule', 'start_date', 'description']
 
 
 class ApplicationSerializer(serializers.ModelSerializer):

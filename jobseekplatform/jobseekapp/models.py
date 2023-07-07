@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 import os
 from django.utils.text import slugify
+import uuid
 
 
 # Create your models here.
@@ -84,6 +85,7 @@ class Job(models.Model):
     description = models.TextField(default='')  # to be assigned
     salary = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)  # to be assigned
     has_questions = models.BooleanField(default=False)
+    unique_identifier = models.UUIDField(default=uuid.uuid4, unique=True)
 
     def __str__(self):
         return self.title
