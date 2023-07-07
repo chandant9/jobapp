@@ -61,5 +61,5 @@ urlpatterns = [
     path('application/<int:application_id>/withdraw/', withdraw_application, name='withdraw_application'),
     # API ENDPOINT URLS BELOW ***
     path('api/jobs/', get_job_list, name='get_job_list'),
-    path('api/job-details/<uuid:unique_identifier>/', get_job_details, name='get_job_details'),
+    path('api/job-details/<unique_identifier>/', get_job_details, name='get_job_details'),
 ]

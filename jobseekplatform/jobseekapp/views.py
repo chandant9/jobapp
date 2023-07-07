@@ -38,7 +38,7 @@ from urllib.parse import urlparse, urlunparse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import JobSerializer, ApplicationSerializer
-from urllib.parse import quote
+from .helpers import get_posted_ago
 
 
 # defined for JobPostingWizardView
@@ -548,7 +548,7 @@ def get_job_list(request):
         job_list = []
         for job in jobs:
             serialized_job = {
-                'id': job.id,
+                'unique_identifier': job.unique_identifier,
                 'title': job.title,
                 'job_loctype': job.job_loctype,
                 'company': job.company.name,
@@ -556,6 +556,7 @@ def get_job_list(request):
                 'salary': job.salary,
                 'job_type': job.job_type,
                 'description': job.description,
+                'posted_ago': get_posted_ago(job.created_at)
                 # Add other job properties as needed
             }
             job_list.append(serialized_job)
@@ -577,6 +578,7 @@ def get_job_details(request, unique_identifier):
             job = get_object_or_404(Job, unique_identifier=unique_identifier)
             serializer = JobSerializer(job)
             job_details = serializer.data
+            job_details['posted_ago'] = get_posted_ago(job.created_at)
             return JsonResponse(job_details)
         except Job.DoesNotExist:
             return JsonResponse({'error': 'Job not found'}, status=404)
