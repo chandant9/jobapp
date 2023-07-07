@@ -24,7 +24,7 @@ from .views import logout_view, base_view, home, \
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 # API VIEW below
-from .views import get_job_list
+from .views import get_job_list, get_job_details
 
 
 urlpatterns = [
@@ -61,4 +61,5 @@ urlpatterns = [
     path('application/<int:application_id>/withdraw/', withdraw_application, name='withdraw_application'),
     # API ENDPOINT URLS BELOW ***
     path('api/jobs/', get_job_list, name='get_job_list'),
+    path('api/job-details/<int:job_id>', get_job_details, name='get_job_details'),
 ]

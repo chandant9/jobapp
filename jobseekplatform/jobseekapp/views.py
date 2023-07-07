@@ -536,6 +536,7 @@ class JobPostingErrorView(TemplateView):
 
 # ******* API END POINT VIEWS FROM BELOW *******
 
+# FETCH JOB LIST
 @csrf_exempt
 def get_job_list(request):
     # Fetch the job list from the database or data source
@@ -566,6 +567,30 @@ def get_job_list(request):
     #     description = request.POST.get('description')
     #     job = Job.objects.create(title=title, description=description)
     #     return JsonResponse({'message': 'Job created successfully'})
+
+
+# FETCH JOB DETAILS
+def get_job_details(request, job_id):
+    if request.method == 'GET':
+        try:
+            job = Job.objects.get(id=job_id)
+            job_details = {
+                'id': job.id,
+                'title': job.title,
+                'company': job.company.name,
+                'employee_count': job.employee_count,
+                'country':  job.country,
+                'salary': job.salary,
+                'job_loctype': job.job_loctype,
+                'location': job.location,
+                'job_type': job.job_type,
+                'schedule': job.schedule,
+                'start_date': job.start_date,
+                'description': job.description,
+            }
+            return JsonResponse(job_details)
+        except Job.DoesNotExist:
+            return JsonResponse({'error': 'Job not found'}, status=404)
 
 
 @api_view(['GET'])
