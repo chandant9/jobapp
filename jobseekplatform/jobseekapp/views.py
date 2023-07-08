@@ -96,7 +96,11 @@ def candidate_register(request):
             candidate_group.save()
 
             messages.success(request, 'Registration successful. Please log in.')
-            return redirect('registration_success')
+
+            if request.META.get('HTTP_ACCEPT') == 'application/json':
+                return JsonResponse({'message': 'Registration successful'})
+            else:
+                return redirect('registration_success')
     else:
         form = CandidateRegistrationForm()
     return render(request, 'register/candidate_register.html', {'form': form})
@@ -137,7 +141,12 @@ def recruiter_register(request):
             # user.user_permissions.add(permission)
 
             messages.success(request, 'Registration successful. Please log in.')
-            return redirect('registration_success')
+
+            if request.META.get('HTTP_ACCEPT') == 'application/json':
+                return JsonResponse({'message': 'Registration successful'})
+            else:
+                return redirect('registration_success')
+
     else:
         form = RecruiterRegistrationForm()
     return render(request, 'register/recruiter_register.html', {'form': form})
