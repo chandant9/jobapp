@@ -40,6 +40,9 @@ from rest_framework.response import Response
 from .serializers import JobSerializer, ApplicationSerializer
 from .helpers import get_posted_ago
 import json
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 
 
 # defined for JobPostingWizardView
@@ -55,7 +58,7 @@ JOB_POSTING_FORMS = [
 
 # 1) Setting up api endpoints for the platform
 
-# 2) User registration
+#  ALSO HANDLES API CALLS
 def role_selection_view(request):
     if request.method == 'POST':
         form = RoleSelectionForm(request.POST)
@@ -79,6 +82,7 @@ def role_selection_view(request):
     return render(request, 'register/role_selection.html', {'form': form})
 
 
+#  ALSO HANDLES API CALLS
 def candidate_register(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -117,6 +121,7 @@ def candidate_register(request):
     return render(request, 'register/candidate_register.html', {'form': form})
 
 
+#  ALSO HANDLES API CALLS
 def recruiter_register(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -597,6 +602,45 @@ def get_job_details(request, unique_identifier):
             return JsonResponse(job_details)
         except Job.DoesNotExist:
             return JsonResponse({'error': 'Job not found'}, status=404)
+
+
+@csrf_exempt
+class LoginView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if request.method == 'POST':
+            try:
+                data = json.loads(request.body)
+                username = data['username']
+                password = data['password']
+
+                # If authentication is successful, generate a token
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    refresh = RefreshToken.for_user(user)
+
+                    # Return the token as a response
+                    return Response({
+                        'access_token': str(refresh.access_token),
+                        'refresh_token': str(refresh)
+                    })
+                else:
+                    # Return error response for invalid credentials
+                    return Response({'error': 'Invalid username or password'}, status=400)
+            except Exception as e:
+                return JsonResponse({'message': str(e)}, status=400)
+
+        return JsonResponse({'message': 'Invalid request'}, status=400)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Clear user's session or token to log them out
+        logout(request)
+        return Response({'message': 'Logged out successfully'})
 
 
 @api_view(['GET'])

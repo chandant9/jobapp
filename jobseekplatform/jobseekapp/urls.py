@@ -24,7 +24,7 @@ from .views import logout_view, base_view, home, \
 from django.contrib.auth import views as auth_views  # built-in password reset functionality
 # from . import views  # profile and password change
 # API VIEW below
-from .views import get_job_list, get_job_details
+from .views import get_job_list, get_job_details, LoginView, LogoutView
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -66,7 +66,7 @@ urlpatterns = [
     path('api/role-selection/', csrf_exempt(role_selection_view), name='api_role_selection'),
     path('api/register/candidate/', csrf_exempt(candidate_register), name='api_candidate_register'),
     path('api/register/recruiter/', csrf_exempt(recruiter_register), name='api_recruiter_register'),
-    path('api/login/', CustomLoginView.as_view(), name='login'),
-    path('api/logout/', logout_view, name='logout'),
+    path('api/login/', LoginView.as_view(), name='api_login'),
+    path('api/logout/', LogoutView.as_view(), name='api_logout'),
 
 ]
