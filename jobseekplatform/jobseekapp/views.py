@@ -39,6 +39,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import JobSerializer, ApplicationSerializer
 from .helpers import get_posted_ago
+import json
 
 
 # defined for JobPostingWizardView
@@ -55,7 +56,6 @@ JOB_POSTING_FORMS = [
 # 1) Setting up api endpoints for the platform
 
 # 2) User registration
-
 def role_selection_view(request):
     if request.method == 'POST':
         form = RoleSelectionForm(request.POST)
@@ -65,15 +65,24 @@ def role_selection_view(request):
                 return redirect('candidate_register')
             elif role == 'recruiter':
                 return redirect('recruiter_register')
+        else:
+            # Return a JSON response with form errors
+            return JsonResponse({'errors': form.errors}, status=400)
     else:
         form = RoleSelectionForm()
+
+    # Check if it's an API call
+    if 'api' in request.GET:
+        # Return the CSRF token as part of the JSON response
+        return JsonResponse({'csrf_token': request.COOKIES.get('csrftoken')})
 
     return render(request, 'register/role_selection.html', {'form': form})
 
 
 def candidate_register(request):
     if request.method == 'POST':
-        form = CandidateRegistrationForm(request.POST)
+        data = json.loads(request.body)
+        form = CandidateRegistrationForm(data)
         if form.is_valid():
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
@@ -95,12 +104,14 @@ def candidate_register(request):
             candidate_group.job_answer_insert_privilege = True  # Set the answer insert privilege as needed
             candidate_group.save()
 
-            messages.success(request, 'Registration successful. Please log in.')
-
-            if request.META.get('HTTP_ACCEPT') == 'application/json':
+            # Return response based on the request type
+            if request.headers.get('accept') == 'application/json':
                 return JsonResponse({'message': 'Registration successful'})
             else:
                 return redirect('registration_success')
+        else:
+            # Return a JSON response with form errors
+            return JsonResponse({'errors': form.errors}, status=400)
     else:
         form = CandidateRegistrationForm()
     return render(request, 'register/candidate_register.html', {'form': form})
@@ -108,8 +119,10 @@ def candidate_register(request):
 
 def recruiter_register(request):
     if request.method == 'POST':
-        form = RecruiterRegistrationForm(request.POST)
+        data = json.loads(request.body)
+        form = RecruiterRegistrationForm(data)
         if form.is_valid():
+            # Save the user and profile
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password1'])
             user.save()
@@ -121,12 +134,9 @@ def recruiter_register(request):
             profile = Profile(user=user, role='recruiter', company=company)
             profile.save()
 
+            # Create or retrieve the group
             group_name = 'Recruiters'
-            try:
-                group = Group.objects.get(name=group_name)
-            except Group.DoesNotExist:
-                group = Group.objects.create(name=group_name)
-
+            group, created = Group.objects.get_or_create(name=group_name)
             user.groups.add(group)
 
             # Create or update the RecruiterGroup
@@ -135,21 +145,17 @@ def recruiter_register(request):
             recruiter_group.job_question_insert_privilege = True  # Set the question insert privilege as needed
             recruiter_group.save()
 
-            # Grant the add_job permission to the user
-            # content_type = ContentType.objects.get_for_model(Job)
-            # permission = Permission.objects.get(content_type=content_type, codename='add_job')
-            # user.user_permissions.add(permission)
-
-            messages.success(request, 'Registration successful. Please log in.')
-
-            if request.META.get('HTTP_ACCEPT') == 'application/json':
+            # Return response based on the request type
+            if request.headers.get('accept') == 'application/json':
                 return JsonResponse({'message': 'Registration successful'})
             else:
                 return redirect('registration_success')
-
+        else:
+            # Return a JSON response with form errors
+            return JsonResponse({'errors': form.errors}, status=400)
     else:
         form = RecruiterRegistrationForm()
-    return render(request, 'register/recruiter_register.html', {'form': form})
+        return render(request, 'register/recruiter_register.html', {'form': form})
 
 
 def registration_success(request):
