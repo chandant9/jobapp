@@ -1,5 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils.timesince import timesince
+from django.conf import settings
+import jwt
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 def get_posted_ago(posted_date):
@@ -33,3 +36,17 @@ def get_posted_ago(posted_date):
         return f'{difference.days} days ago'
     else:
         return timesince(posted_date).split(",")[0] + 'days ago'
+
+
+def generate_access_token(user):
+    # Define the token payload with user information
+    payload = {
+        'user_id': user.id,
+        'exp': datetime.utcnow() + timedelta(days=1)  # Token expiration time (e.g., 1 day)
+    }
+
+    # Generate the access token using the secret key
+    access_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+    # Return the access token as a string
+    return access_token

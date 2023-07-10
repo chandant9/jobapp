@@ -26,6 +26,10 @@ from django.contrib.auth import views as auth_views  # built-in password reset f
 # API VIEW below
 from .views import get_job_list, get_job_details, LoginView, LogoutView
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 
 urlpatterns = [
@@ -68,5 +72,7 @@ urlpatterns = [
     path('api/register/recruiter/', csrf_exempt(recruiter_register), name='api_recruiter_register'),
     path('api/login/', LoginView.as_view(), name='api_login'),
     path('api/logout/', LogoutView.as_view(), name='api_logout'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]
