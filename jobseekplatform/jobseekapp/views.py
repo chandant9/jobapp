@@ -210,19 +210,6 @@ def base_view(request):
     return render(request, 'home.html')
 
 
-# @login_required
-# def profile(request):
-#     if request.method == 'POST':
-#         form = ProfileForm(request.POST, instance=request.user)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('profile')
-#     else:
-#         form = ProfileForm(instance=request.user)
-#
-#     return render(request, 'profile.html', {'form': form})
-
-
 @login_required
 def update_profile(request):
     return render(request, 'update_profile.html')
@@ -609,9 +596,11 @@ def get_job_details(request, unique_identifier):
 
 # @method_decorator(csrf_protect, name='dispatch')
 class LoginView(APIView):
+
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+        data = request.data
+        username = data.get('username')
+        password = data.get('password')
 
         # Authenticate the user
         user = authenticate(username=username, password=password)
@@ -621,10 +610,10 @@ class LoginView(APIView):
             access_token = generate_access_token(user)
 
             # Return the access token as a response
-            return Response({'access_token': access_token})
+            return JsonResponse({'access_token': str(access_token)})
         else:
             # Return error response for invalid credentials
-            return Response({'error': 'Invalid username or password'}, status=400)
+            return JsonResponse({'error': 'Invalid username or password'}, status=400)
 
 
 class LogoutView(APIView):

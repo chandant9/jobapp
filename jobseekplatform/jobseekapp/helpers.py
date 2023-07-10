@@ -39,14 +39,6 @@ def get_posted_ago(posted_date):
 
 
 def generate_access_token(user):
-    # Define the token payload with user information
-    payload = {
-        'user_id': user.id,
-        'exp': datetime.utcnow() + timedelta(days=1)  # Token expiration time (e.g., 1 day)
-    }
+    access_token = AccessToken.for_user(user)
 
-    # Generate the access token using the secret key
-    access_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-    # Return the access token as a string
     return access_token

@@ -16,7 +16,7 @@ class AuthenticationMiddleware:
                      '/api/register/candidate/',
                      '/api/register/recruiter/',
                      '/api/login/',
-                     'api/logout/',
+                     '/api/logout/',
                      )
 
     def __init__(self, get_response):
