@@ -35,7 +35,7 @@ from django.core.files import File
 import requests
 from urllib.parse import urlparse, urlunparse
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .serializers import JobSerializer, ApplicationSerializer
 from .helpers import get_posted_ago, generate_access_token
@@ -626,14 +626,17 @@ class LogoutView(APIView):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_applied_jobs(request):
     # Retrieve the currently signed-in user
     user = request.user
 
     # Retrieve the applied jobs for the user
-    applications = user.applications.all()
+    applications = Application.objects.filter(applicant=user).order_by('-applied_at')
 
     # Serialize the application data
     serializer = ApplicationSerializer(applications, many=True)
 
-    return Response(serializer.data)
+    jobs_applied = serializer.data
+
+    return Response(jobs_applied)
