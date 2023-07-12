@@ -37,7 +37,7 @@ from urllib.parse import urlparse, urlunparse
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .serializers import JobSerializer, ApplicationSerializer
+from .serializers import JobSerializer, ApplicationSerializer, CandidateProfileSerializer
 from .helpers import get_posted_ago, generate_access_token
 import json
 from rest_framework.views import APIView
@@ -640,3 +640,13 @@ def get_applied_jobs(request):
     jobs_applied = serializer.data
 
     return Response(jobs_applied)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_candidate_profile(request):
+    user = request.user
+    profile = user.candidate_profile
+
+    serializer = CandidateProfileSerializer(profile)
+    return Response(serializer.data)
