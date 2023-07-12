@@ -650,3 +650,17 @@ def get_candidate_profile(request):
 
     serializer = CandidateProfileSerializer(profile)
     return Response(serializer.data)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_candidate_profile(request):
+    user = request.user
+    profile, created = CandidateProfile.objects.get_or_create(user=user)
+
+    serializer = CandidateProfileSerializer(instance=profile, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=400)
