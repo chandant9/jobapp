@@ -25,7 +25,7 @@ from django.contrib.auth import views as auth_views  # built-in password reset f
 # from . import views  # profile and password change
 # API VIEW below
 from .views import get_job_list, get_job_details, LoginView, LogoutView, get_applied_jobs, \
-    get_candidate_profile, update_candidate_profile
+    get_candidate_profile, update_candidate_profile, create_job
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -78,5 +78,5 @@ urlpatterns = [
     path('api/jobs-applied/', get_applied_jobs, name='get_applied_jobs'),
     path('api/candidate-profile/', get_candidate_profile, name='get_candidate_profile'),
     path('api/update-candidate-profile/', update_candidate_profile, name='update_candidate_profile'),
-
+    path('api/jobs/', create_job, name='create_job'),
 ]

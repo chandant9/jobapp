@@ -45,6 +45,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import AccessToken
 from django.views.decorators.csrf import csrf_protect
+from rest_framework import status
 
 
 # defined for JobPostingWizardView
@@ -664,3 +665,12 @@ def update_candidate_profile(request):
         return Response(serializer.data)
 
     return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+def create_job(request):
+    serializer = JobSerializer(data=request.data)
+    if serializer.is_valid():
+        job = serializer.save(posted_by=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
