@@ -674,3 +674,28 @@ def create_job(request):
         job = serializer.save(posted_by=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+
+    # Retrieve the current password, new password, and confirm password from the request data
+    current_password = request.data.get('current_password')
+    new_password = request.data.get('new_password')
+    confirm_password = request.data.get('confirm_password')
+
+    # Check if the current password matches the user's actual password
+    if not user.check_password(current_password):
+        return Response({'error': 'Invalid current password'}, status=400)
+
+    # Check if the new password and confirm password match
+    if new_password != confirm_password:
+        return Response({'error': 'New password and confirm password do not match'}, status=400)
+
+    # Set the new password for the user
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'success': 'Password changed successfully'})
