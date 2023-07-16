@@ -667,13 +667,13 @@ def update_candidate_profile(request):
     return Response(serializer.errors, status=400)
 
 
-@api_view(['POST'])
-def create_job(request):
-    serializer = JobSerializer(data=request.data)
-    if serializer.is_valid():
-        job = serializer.save(posted_by=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# def create_job(request):
+#     serializer = JobSerializer(data=request.data)
+#     if serializer.is_valid():
+#         job = serializer.save(posted_by=request.user)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
