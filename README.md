@@ -1,1 +1,1 @@
-# jobapp This is a web application written in python using django framework - It is a job search site where the employers can post a job and then the employees can apply for jobs.
+# jobapp This is a web application written in python using django framework - It is a job search site where the employers can post a job and then the employees can apply for jobs. This is a back end part of the application, I have also written the front end usint React JavaScript framework.
